@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ALIBI — Prototype v0.2 · Case Files &amp; Tabletop Kit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:wght@400;700&family=Permanent+Marker&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<style>
+:root{--ink:#1c1712;--paper:#ece2cc;--manila:#d9c08a;--red:#b3201c;--red2:#d8322b;--night:#121417;--amber:#e8b44a;--green:#3f6b3a;
+  --typed:'Special Elite','Courier Prime',monospace;--mono:'Courier Prime',monospace;--hand:'Permanent Marker',cursive;--head:'Oswald',sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--night);color:var(--paper);font-family:var(--mono)}
+body{background:radial-gradient(ellipse at 20% 0%,rgba(232,180,74,.10),transparent 55%),radial-gradient(ellipse at 90% 100%,rgba(179,32,28,.10),transparent 50%),repeating-linear-gradient(90deg,rgba(255,255,255,.015) 0 2px,transparent 2px 6px),var(--night);min-height:100vh}
+button{font-family:var(--typed);cursor:pointer} select,input{font-family:var(--mono);font-size:15px}
+.app{max-width:1280px;margin:0 auto;padding:18px 18px 60px}
+.masthead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:2px solid #2c3036;padding-bottom:12px}
+.logo{font-family:var(--head);font-size:56px;letter-spacing:.18em;line-height:.9;color:var(--paper);text-shadow:3px 3px 0 var(--red)}
+.logo small{display:block;font-family:var(--typed);font-size:13px;letter-spacing:.12em;color:#9aa3ad;text-shadow:none;margin-top:6px}
+.casepicker{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.cp-label{font-family:var(--head);letter-spacing:.2em;font-size:11px;color:#8f98a2}
+.cp-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.folder{background:#2a2e33;color:#cfd5da;border:none;padding:8px 12px 8px;font-size:13.5px;border-radius:2px 10px 2px 2px;border-top:4px solid #6b5a3a;box-shadow:2px 3px 0 #000;text-align:left;max-width:200px}
+.folder span{display:block;font-family:var(--head);font-size:11px;letter-spacing:.14em;color:var(--amber)}
+.folder.on{background:var(--manila);color:var(--ink);border-top-color:var(--red)} .folder.on span{color:var(--red)}
+.folder.rand{border-top-color:#3f6b3a} .folder:hover:not(.on){background:#353a40}
+.cp-seed{font-size:12.5px;color:#b9c0c7;display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.cp-seed b{color:var(--amber)} .cp-seed input{background:#111316;border:1px solid #444b52;color:#f0e6d2;padding:4px 6px;width:90px;font-size:13px}
+.confirmbar{margin-top:10px;background:#3a1715;border:1px solid var(--red);padding:10px 14px;font-family:var(--typed);font-size:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.casebar{margin-top:12px;font-family:var(--typed);font-size:14px;color:#cfd5da;background:#1a1d21;border-left:4px solid var(--red);padding:8px 12px}
+.casebar .red{color:#ff7a70}.casebar .blue{color:#8fc0ea}.casebar .gen{margin-left:8px;font-family:var(--head);font-size:11px;letter-spacing:.12em;background:#3f6b3a;color:#fff;padding:2px 8px}
+.tabs{display:flex;gap:4px;margin:14px 0 0;flex-wrap:wrap}
+.tab{background:#22262b;color:#b9c0c7;border:none;padding:10px 16px 9px;font-size:15px;border-radius:6px 6px 0 0;border-top:3px solid transparent}
+.tab.on{background:var(--manila);color:var(--ink);border-top-color:var(--red)} .tab:hover:not(.on){background:#2c3137;color:#fff}
+.sheet{background:#1a1d21;border:1px solid #2c3036;border-top:4px solid var(--manila);padding:20px;border-radius:0 6px 6px 6px}
+.paper{background:var(--paper);color:var(--ink);position:relative;background-image:radial-gradient(circle at 12% 18%,rgba(120,90,40,.10),transparent 30%),radial-gradient(circle at 85% 80%,rgba(120,90,40,.12),transparent 35%),repeating-linear-gradient(0deg,rgba(0,0,0,.018) 0 1px,transparent 1px 3px);box-shadow:0 8px 18px rgba(0,0,0,.45)}
+.typed{font-family:var(--typed)}
+.stamp{font-family:var(--head);color:var(--red);border:3px solid var(--red);padding:2px 10px;letter-spacing:.15em;display:inline-block;transform:rotate(-6deg);opacity:.85;font-size:14px}
+.btn{background:var(--red);color:#fff;border:none;padding:10px 16px;font-size:15px;box-shadow:3px 3px 0 #000;letter-spacing:.04em}
+.btn:hover{background:var(--red2)} .btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #000}
+.btn:disabled{background:#4a4f55;color:#9aa;cursor:not-allowed;box-shadow:none}
+.btn.ghost{background:transparent;border:1px solid #5d6670;color:#d3d8dd;box-shadow:none} .btn.ghost:hover{border-color:var(--amber);color:var(--amber)}
+.btn.ghost.dark{color:#1c1712;border-color:#1c1712}
+.btn.amber{background:var(--amber);color:var(--ink)} .btn.small{padding:5px 10px;font-size:13px}
+.grid2{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:20px} @media (max-width:980px){.grid2{grid-template-columns:1fr}}
+h2.label{font-family:var(--head);letter-spacing:.14em;font-size:15px;color:var(--amber);margin:0 0 10px;text-transform:uppercase}
+.muted{color:#8f98a2}
+.cork{border-radius:4px;overflow:hidden;box-shadow:inset 0 0 40px rgba(0,0,0,.6),0 10px 24px rgba(0,0,0,.5);border:10px solid #4a321b}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin-top:10px;color:#b9c0c7}
+.tracker{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.rnd{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-family:var(--head);font-size:18px;border:2px solid #3a3f45;color:#7b848e}
+.rnd.done{background:#2c3036;color:#9aa;text-decoration:line-through} .rnd.now{border-color:var(--amber);color:var(--ink);background:var(--amber);box-shadow:0 0 0 4px rgba(232,180,74,.2)}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px}
+.step{background:#22262b;padding:8px;font-size:12.5px;border-left:3px solid #3a3f45;color:#aab} .step.on{border-left-color:var(--amber);color:#fff;background:#2a2e33} .step.ok{border-left-color:var(--green);color:#9fbf98}
+.step b{display:block;font-family:var(--head);letter-spacing:.1em;font-size:11px;color:#8f98a2}
+/* evidence */
+.deck{display:grid;grid-template-columns:1fr;gap:18px}
+.ecard{min-height:230px;padding:16px 16px 14px;position:relative;transition:transform .2s}
+.ecard:hover{transform:rotate(0deg) scale(1.01)!important}
+.ecard .num{position:absolute;top:-10px;right:12px;background:var(--red);color:#fff;font-family:var(--head);padding:2px 8px;font-size:13px;letter-spacing:.1em}
+.ecard h4{font-family:var(--head);letter-spacing:.08em;margin:0 0 4px;font-size:16px;text-transform:uppercase;padding-right:96px}
+.ecard .sub{font-size:12px;margin-bottom:8px;opacity:.85}
+.ecard p,.ecard li{font-size:14px;line-height:1.45;margin:4px 0} .ecard ul{padding-left:18px;margin:6px 0}
+.ecard .cnote{font-size:13px;opacity:.9}
+.ecard .margin{font-family:var(--hand);color:var(--red);font-size:13px}
+.evrows{width:100%;border-collapse:collapse;font-size:13.5px;margin:6px 0} .evrows td{border-bottom:1px dotted rgba(0,0,0,.35);padding:3px 4px;vertical-align:top} .evrows td.t{white-space:nowrap;font-weight:700;width:1%}
+.cctv .evrows td{border-bottom-color:rgba(185,245,194,.25)}
+.facedown{background:#2a2017;border:2px dashed #6b5233;display:grid;place-items:center;color:#a08660;font-family:var(--typed);text-align:center;min-height:230px}
+.facedown .big{font-family:var(--head);font-size:42px;color:#5e4628}
+.cctv{background:#0e1310;color:#b9f5c2;font-family:var(--mono);border:6px solid #2b2f2c} .cctv h4{color:#b9f5c2}
+.cctv .screen{position:relative;height:70px;margin:6px 0 10px;background:linear-gradient(#18221b,#0a0f0b);overflow:hidden;border:1px solid #2c3a2f;color:#91c79c}
+.cctv .screen:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.06) 0 1px,transparent 1px 3px)}
+.cctv .rec{position:absolute;top:4px;left:6px;font-size:11px;color:#ff5a4f;z-index:1} .cctv .ts{position:absolute;bottom:4px;right:6px;font-size:11px;z-index:1}
+.receipt{background:#f6f1e4;color:#222;font-family:var(--mono);-webkit-mask:linear-gradient(#000,#000) top/100% calc(100% - 10px) no-repeat,radial-gradient(circle 6px at 8px 100%,transparent 6px,#000 6.5px) bottom left/16px 10px repeat-x;mask:linear-gradient(#000,#000) top/100% calc(100% - 10px) no-repeat,radial-gradient(circle 6px at 8px 100%,transparent 6px,#000 6.5px) bottom left/16px 10px repeat-x}
+.lined{background:#f3ecd8;background-image:repeating-linear-gradient(transparent 0 23px,#a9c2d8 23px 24px);color:#20283a;font-family:var(--typed)}
+.lined:before{content:"";position:absolute;left:28px;top:0;bottom:0;border-left:2px solid rgba(179,32,28,.4)} .lined>*{margin-left:22px} .lined .num{margin-left:0}
+.lined .sig{font-family:var(--hand);color:var(--red)}
+.report{background:#e9dfc6}
+.tape{position:absolute;top:-12px;left:50%;width:90px;height:24px;transform:translateX(-50%) rotate(-3deg);background:rgba(240,230,190,.55);box-shadow:0 1px 2px rgba(0,0,0,.2)}
+/* record */
+.record{padding:22px 22px 18px} .record h3{margin:0;font-size:20px;letter-spacing:.04em}
+.record table{width:100%;border-collapse:collapse;margin-top:12px;font-family:var(--typed);font-size:14px}
+.record th{font-family:var(--head);font-weight:500;letter-spacing:.1em;font-size:12px;text-align:left;border-bottom:2px solid var(--ink);padding:6px}
+.record td{padding:7px 6px;border-bottom:1px solid rgba(0,0,0,.2);vertical-align:top}
+.locked{font-family:var(--head);font-size:10px;letter-spacing:.1em;color:var(--red)}
+.flag{color:var(--red);font-family:var(--hand);font-size:13px;display:block;margin-top:3px}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;align-items:end;background:#22262b;padding:14px;border-left:4px solid var(--amber)}
+.form label{font-size:12px;letter-spacing:.08em;color:#9aa3ad;display:flex;flex-direction:column;gap:4px;font-family:var(--head)}
+.inp{background:#111316;border:1px solid #444b52;color:#f0e6d2;padding:8px}
+.tlrow{display:grid;grid-template-columns:120px 1fr;align-items:center;gap:10px;margin:6px 0;font-size:13px}
+.tlbar{position:relative;height:24px;background:repeating-linear-gradient(90deg,#2a2e33 0 calc(100%/12 - 1px),#3a3f45 calc(100%/12 - 1px) calc(100%/12));border-radius:2px}
+.tlseg{position:absolute;top:2px;bottom:2px;border-radius:2px;font-size:10px;color:#111;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;font-weight:700;min-width:6px}
+.tlseg.bad{outline:2px solid var(--red2)}
+.heistband{position:absolute;top:-4px;bottom:-4px;border-left:1px dashed var(--red2);border-right:1px dashed var(--red2);background:rgba(179,32,28,.15)}
+/* roles */
+.roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px}
+.polaroid{background:#f4f0e6;color:var(--ink);padding:14px 14px 18px;box-shadow:0 10px 20px rgba(0,0,0,.5);position:relative}
+.polaroid .photo{height:150px;background:#1d1f22;display:grid;place-items:center;position:relative;overflow:hidden}
+.polaroid .name{font-family:var(--hand);font-size:22px;margin-top:10px;text-align:center}
+.redacted{background:#111;color:#111;user-select:none}
+.rolecard{padding:18px} .rolecard .rtitle{font-family:var(--head);font-size:24px;letter-spacing:.1em}
+.minihead{font-family:var(--head);letter-spacing:.1em;font-size:12px}
+.route{list-style:none;padding:0;margin:8px 0} .route li{display:grid;grid-template-columns:92px 1fr;gap:8px;padding:5px 0;border-bottom:1px dashed rgba(0,0,0,.25);font-size:14px} .route li b{font-family:var(--typed)}
+.note{background:rgba(232,180,74,.25);padding:8px 10px;font-size:13.5px;margin-top:10px;border-left:3px solid #b8892a} .danger{background:rgba(179,32,28,.12);border-left-color:var(--red)}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.75);display:grid;place-items:center;z-index:50;padding:16px}
+.modal{max-width:980px;width:100%;max-height:92vh;overflow:auto;padding:26px}
+.result{font-family:var(--head);font-size:44px;letter-spacing:.1em}
+.occ{border-collapse:collapse;font-size:12.5px;width:100%;margin-top:8px} .occ td,.occ th{border:1px solid rgba(0,0,0,.25);padding:4px;text-align:center} .occ th{font-family:var(--head);font-weight:500}
+.rules{padding:26px 30px;columns:2 320px;column-gap:36px}
+.rules h3{font-family:var(--head);letter-spacing:.12em;margin:0 0 6px;font-size:17px;color:var(--red);break-after:avoid}
+.rules p,.rules li{font-size:14.5px;line-height:1.5} .rules section{break-inside:avoid;margin-bottom:16px}
+.disttable{border-collapse:collapse;font-size:13px} .disttable td,.disttable th{border:1px solid #444b52;padding:4px 7px;text-align:center} .disttable th{font-family:var(--head);font-weight:500;color:var(--amber)}
+.testblock{background:#22262b;margin-bottom:8px;padding:8px 10px;border-left:3px solid #3f6b3a}
+.tb-head{cursor:pointer;font-size:13.5px} .tb-head .pass{color:#9fdf98;font-family:var(--head);letter-spacing:.08em} .tb-head .fail{color:#ff7a70;font-family:var(--head)}
+.selftest{font-size:12.5px;color:#9fbf98;margin-top:6px;line-height:1.5} .selftest .bad{color:#ff7a70}
+/* ===== PRINT KIT ===== */
+.print-sheet{display:none} .print-sheet.show{display:block}
+.kit{overflow-x:auto;padding-bottom:10px}
+.print-banner{max-width:297mm;margin:0 auto 22px;background:var(--manila);color:var(--ink);padding:16px 22px;border:3px dashed var(--ink);box-shadow:4px 5px 0 #000;font-family:var(--typed);font-size:14px}
+.pb-title{font-family:var(--head);font-size:22px;letter-spacing:.1em;color:var(--red);margin-bottom:6px}
+.print-banner li{margin:4px 0}
+.a4{width:210mm;height:296mm;padding:9mm;margin:0 auto 26px;background:#fff;color:#111;box-shadow:0 6px 18px rgba(0,0,0,.55);overflow:hidden;position:relative;display:flex;flex-direction:column;font-family:var(--typed)}
+.a4.land{width:297mm;height:209mm;padding:7mm 9mm}
+.pp-head{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:2.5px solid #111;padding-bottom:2mm;margin-bottom:4mm;font-family:var(--head);font-size:9.5pt;letter-spacing:.1em}
+.pp-logo{font-size:17pt;letter-spacing:.25em;color:#111;text-shadow:1.5px 1.5px 0 var(--red)}
+.pp-foot{margin-top:auto;border-top:1.5px solid #111;padding-top:1.5mm;font-size:8.5pt;text-align:center;letter-spacing:.04em}
+.board-frame{display:flex;justify-content:center} .board-frame svg{height:168mm!important;width:auto!important}
+.pp-note{font-size:8.5pt;margin-top:auto;text-align:center}
+.cardgrid{display:grid;grid-template-columns:repeat(2,70mm);gap:8mm 10mm;justify-content:center}
+.tarot{width:70mm;height:120mm;border:1.2px dashed #555;padding:4mm;position:relative;overflow:hidden;font-size:7.6pt;line-height:1.3;display:flex;flex-direction:column}
+.tarot.front{background:#fffdf7}
+.tarot.thief{border-top:5mm solid var(--red)} .tarot.inn{border-top:5mm solid var(--green)} .tarot.blank{border-top:5mm solid #777}
+.tf-top{display:flex;justify-content:space-between;font-family:var(--head);font-size:7pt;letter-spacing:.12em}
+.tf-title{font-family:var(--head);font-size:13pt;letter-spacing:.08em;margin:1.5mm 0 .5mm;line-height:1.1}
+.thief .tf-title{color:var(--red)} .inn .tf-title{color:var(--green)}
+.tf-kicker{font-size:7pt;margin-bottom:1.5mm}
+.tf-h{font-family:var(--head);font-size:7pt;letter-spacing:.14em;border-bottom:1px solid #111;margin:2mm 0 1mm}
+.tf-route{width:100%;border-collapse:collapse} .tf-route td{padding:.6mm 0;border-bottom:1px dotted #999;vertical-align:top} .tf-route td:first-child{width:42%;font-weight:700}
+.tf-tips{padding-left:4mm;margin:1.5mm 0 0;font-size:7pt} .tf-tips li{margin-bottom:.8mm}
+.tf-why{font-size:7.6pt;background:#f1ead6;padding:1.5mm;margin:2mm 0 0}
+.tf-foot{margin-top:auto;font-size:6.4pt;border-top:1px solid #111;padding-top:1mm}
+.tf-grid{width:100%;border-collapse:collapse;margin-top:1mm} .tf-grid td{border:1px solid #999;height:5.3mm;font-size:7pt;padding:0 1mm} .tf-grid td:first-child{width:28%;font-weight:700}
+.tarot.back{background:#fff;padding:3mm}
+.back-in{border:2px solid #111;outline:1px solid #111;outline-offset:-3mm;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4mm;background:repeating-linear-gradient(45deg,#fff 0 3mm,#f2ece0 3mm 3.4mm)}
+.back-logo{font-family:var(--head);font-size:26pt;letter-spacing:.3em;text-shadow:2px 2px 0 var(--red);padding-left:.3em}
+.back-sub{font-family:var(--head);font-size:8pt;letter-spacing:.2em;text-align:center}
+.back-case{font-size:7pt;border:1px solid #111;padding:.5mm 2mm;background:#fff}
+.evback-row{display:grid;grid-template-columns:repeat(6,1fr);gap:3mm;margin-top:8mm}
+.evback{border:1.2px dashed #555;height:30mm;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--head);font-size:7pt;letter-spacing:.12em;background:repeating-linear-gradient(-45deg,#fff 0 2mm,#f3eee3 2mm 2.4mm)}
+.evback b{font-size:20pt;color:var(--red)} .evback span{font-family:var(--typed);letter-spacing:0;font-size:6.5pt}
+.evgrid{display:grid;grid-template-columns:repeat(2,1fr);grid-auto-rows:84mm;gap:4mm}
+.evcut{border:1.2px dashed #555;padding:3mm;overflow:hidden}
+.evgrid .ecard{min-height:0;height:100%;padding:3.5mm;box-shadow:none;transform:none!important;font-size:8pt}
+.evgrid .ecard p,.evgrid .ecard li{font-size:8.2pt;line-height:1.3;margin:.8mm 0} .evgrid .evrows{font-size:8pt;margin:1mm 0} .evgrid .ecard h4{font-size:10.5pt;padding-right:22mm}
+.evgrid .ecard .num{top:0;right:0;font-size:8pt} .evgrid .ecard .sub{font-size:7.5pt;margin-bottom:1.5mm} .evgrid .tape{display:none}
+.evgrid .cctv{background:#fff;color:#111;border:2px solid #111} .evgrid .cctv h4{color:#111} .evgrid .cctv .screen{background:#ececec;color:#444;border-color:#111;height:16mm} .evgrid .cctv .rec{color:var(--red)} .evgrid .cctv .evrows td{border-bottom-color:#999}
+.evgrid .paper{background:#fbf7ee} .evgrid .lined{background-color:#fdfaf2} .evgrid .receipt{background:#fff;border:1px solid #bbb}
+.rec-meta{font-size:9pt;display:grid;gap:1.5mm;margin-bottom:3mm}
+.pp-rec{border-collapse:collapse;width:100%;font-size:8.5pt} .pp-rec th{font-family:var(--head);font-weight:500;letter-spacing:.06em;background:#ece4d0;border:1px solid #111;padding:1.5mm} .pp-rec td{border:1px solid #111;height:7.6mm}
+.tearline{text-align:center;font-size:8pt;margin:4mm 0 3mm;color:#444;white-space:nowrap;overflow:hidden}
+.tgrid{border-collapse:collapse;width:100%;font-size:7.5pt} .tgrid th{font-family:var(--head);font-weight:500;border:1px solid #111;padding:1mm .5mm;background:#ece4d0} .tgrid td{border:1px solid #111;height:8mm} .tgrid td:first-child{font-weight:700;padding:0 1mm;width:15mm}
+.tg-key{font-size:7.5pt;margin:1.5mm 0 3mm}
+.notesbox{border:1.5px solid #111;padding:2mm 3mm;flex:1;display:flex;flex-direction:column;justify-content:space-around}
+.nb-h{font-family:var(--head);letter-spacing:.15em;font-size:9pt} .nb-line{border-bottom:1px solid #aaa;height:6mm}
+@page{size:A4 portrait;margin:0}
+@page board{size:A4 landscape;margin:0}
+@media print{
+  html,body{background:#fff!important}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .app{padding:0;max-width:none}
+  .app>*:not(.print-sheet){display:none!important}
+  .print-sheet{display:block!important} .kit{overflow:visible;padding:0}
+  .pp-noprint{display:none!important}
+  .a4{margin:0;box-shadow:none;break-after:page;page-break-after:always}
+  .a4.land{page:board}
+  .a4:last-child{break-after:auto;page-break-after:auto}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const LOCS = {
+  B: { name: "City Bank", short: "Bank", x: 410, y: 265, color: "#d8322b" },
+  P: { name: "Central Park", short: "Park", x: 205, y: 120, color: "#6f9a5c" },
+  M: { name: "Metro Station", short: "Metro", x: 610, y: 150, color: "#5c86b3" },
+  C: { name: "Noir Caf\xE9", short: "Caf\xE9", x: 180, y: 420, color: "#b07a45" },
+  T: { name: "Train Station", short: "Train", x: 795, y: 330, color: "#8a76b5" },
+  D: { name: "Harbor Docks", short: "Docks", x: 610, y: 500, color: "#4d9c9a" }
+};
+const LKEYS = Object.keys(LOCS);
+const EDGES = [["B", "M", 5], ["B", "P", 10], ["B", "C", 15], ["P", "C", 10], ["M", "T", 15], ["P", "T", 20], ["C", "D", 20], ["T", "D", 10]];
+const ROADS = { "C-D": "Caf\xE9 Rd", "T-D": "Station Rd", "P-T": "Park Path", "M-T": "Metro Tunnel", "B-M": "Vault St", "B-P": "Park Ave", "B-C": "Alley Row", "P-C": "Elm Walk" };
+const roadName = (a, b) => ROADS[`${a}-${b}`] || ROADS[`${b}-${a}`] || `${LOCS[a].short}\u2013${LOCS[b].short}`;
+const ADJ = {};
+LKEYS.forEach((k) => ADJ[k] = []);
+EDGES.forEach(([a, b, w]) => {
+  ADJ[a].push([b, w]);
+  ADJ[b].push([a, w]);
+});
+const DIST = (() => {
+  const d = {};
+  LKEYS.forEach((a) => {
+    d[a] = {};
+    LKEYS.forEach((b) => d[a][b] = a === b ? 0 : 1e9);
+  });
+  EDGES.forEach(([a, b, w]) => {
+    d[a][b] = w;
+    d[b][a] = w;
+  });
+  LKEYS.forEach((k) => LKEYS.forEach((i) => LKEYS.forEach((j) => {
+    if (d[i][k] + d[k][j] < d[i][j]) d[i][j] = d[i][k] + d[k][j];
+  })));
+  return d;
+})();
+const edgeW = (a, b) => {
+  const e = EDGES.find((e2) => e2[0] === a && e2[1] === b || e2[0] === b && e2[1] === a);
+  return e ? e[2] : null;
+};
+const tm = (s) => {
+  const [h, m] = s.split(":").map(Number);
+  return h * 60 + m;
+};
+const ft = (m) => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}`;
+const START = tm("19:30"), END = tm("20:30");
+const TICKS = [];
+for (let m = START; m <= END; m += 5) TICKS.push(m);
+const TIMES = TICKS.map(ft);
+const ticksIn = (a, b) => TICKS.filter((m) => m >= a && m <= b);
+const range = (a, b) => a === b ? ft(a) : `${ft(a)}\u2013${ft(b)}`;
+const ROLE_KEYS = ["thief", "inn1", "inn2"];
+const FLAVOR = {
+  B: { scene: "City Bank vault", loot: "the vault cash", sensor: "Alarm Co. printout", crime: "Bank Job" },
+  P: { scene: "Central Park Pavilion", loot: "the Jade Idol", sensor: "Pavilion glass-break sensor", crime: "Pavilion Heist" },
+  M: { scene: "Metro ticket office", loot: "the weekly fare safe", sensor: "Safe-door contact", crime: "Fare-Safe Job" },
+  C: { scene: "Noir Caf\xE9 back room", loot: "the back-room poker pot", sensor: "Back-room bell wire", crime: "Poker-Pot Snatch" },
+  T: { scene: "Train left-luggage office", loot: "a diplomat\u2019s strongbox", sensor: "Strongbox tamper tag", crime: "Left-Luggage Lift" },
+  D: { scene: "Harbor Docks, Container 7", loot: "the contraband in Container 7", sensor: "Customs seal timer", crime: "Container 7 Job" }
+};
+const LOGCARD = {
+  B: { kind: "cctv", title: "Bank Street Camera", sub: "City Bank exterior \xB7 CAM-02", noun: ["person on camera", "people on camera"] },
+  P: { kind: "statement", title: "Central Park Groundskeeper", sub: "Witness statement \u2014 O. Pruitt", noun: ["person in the park", "people in the park"] },
+  M: { kind: "ledger", title: "Metro Platform Log", sub: "Metro Station \xB7 transit police", noun: ["person on the platform", "people on the platform"] },
+  C: { kind: "receipt", title: "Noir Caf\xE9 \u2014 Register Tape", sub: "Waitress: Dolores", noun: ["customer", "customers"] },
+  T: { kind: "ledger", title: "Train Concourse Clerk", sub: "Train Station \xB7 ticket office", noun: ["person on the concourse", "people on the concourse"] },
+  D: { kind: "ledger", title: "Harbor Gate Log", sub: "Harbor Docks \xB7 gatehouse", noun: ["person at the gate", "people at the gate"] }
+};
+const toMin = (st) => st.map(([l, a, b, txt]) => [l, typeof a === "string" ? tm(a) : a, typeof b === "string" ? tm(b) : b, txt]);
+function occ(st, m) {
+  for (const s of st) {
+    if (m >= s[1] && m <= s[2]) return s[0];
+  }
+  return null;
+}
+const countAt = (routes, loc, m) => routes.filter((r) => occ(r, m) === loc).length;
+function routeErr(st) {
+  if (st[0][1] !== START) return "does not start at 19:30";
+  for (const s of st) if (s[2] < s[1]) return "leaves before arriving";
+  for (let i = 1; i < st.length; i++) {
+    const a = st[i - 1], b = st[i];
+    const w = edgeW(a[0], b[0]);
+    if (w === null) return `${LOCS[a[0]].short}\u2192${LOCS[b[0]].short} has no string`;
+    if (b[1] - a[2] !== w) return `${LOCS[a[0]].short}\u2192${LOCS[b[0]].short} takes ${b[1] - a[2]} min, string says ${w}`;
+  }
+  return null;
+}
+const endErr = (st, Z) => {
+  const l = st[st.length - 1];
+  return l[0] === Z && l[2] === END ? null : `does not end at ${LOCS[Z].short} at 20:30`;
+};
+function failChecks(card, routes) {
+  const f = [];
+  for (const [loc, a, b, n] of card.checks) {
+    for (const m of ticksIn(a, b)) {
+      const c = countAt(routes, loc, m);
+      if (c !== n) f.push(`${LOCS[loc].short} @ ${ft(m)}: card says ${n}, routes give ${c}`);
+    }
+  }
+  return f;
+}
+const ck = (loc, a, b, n) => [loc, tm(a), tm(b), n];
+function analyse(statements, cs, heistKnown) {
+  const issues = {};
+  const add = (id, msg, warn) => {
+    (issues[id] = issues[id] || []).push({ msg, warn: !!warn });
+  };
+  const s = [...statements].sort((a, b) => a.from - b.from || a.to - b.to);
+  const Z = cs.detain;
+  s.forEach((x) => {
+    if (heistKnown && x.loc === cs.scene && x.from <= cs.heist[1] && x.to >= cs.heist[0]) add(x.id, `Suspicious: at the crime scene during the heist window (${range(cs.heist[0], cs.heist[1])}).`, true);
+    if (x.to + DIST[x.loc][Z] > END) add(x.id, `Can\u2019t reach ${LOCS[Z].short} by 20:30 \u2014 ${LOCS[x.loc].short}\u2192${LOCS[Z].short} needs ${DIST[x.loc][Z]} min.`);
+    if (x.from - START < 0) add(x.id, "Before the investigation window.");
+  });
+  for (let i = 0; i < s.length; i++) for (let j = i + 1; j < s.length; j++) {
+    const a = s[i], b = s[j];
+    if (a.loc === b.loc) continue;
+    if (b.from <= a.to && a.from <= b.to) {
+      add(b.id, `Overlaps another claim (${LOCS[a.loc].short} ${range(a.from, a.to)}). Can\u2019t be in two places.`);
+      continue;
+    }
+    const [e, l] = a.to <= b.from ? [a, b] : [b, a];
+    const gap = l.from - e.to, need = DIST[e.loc][l.loc];
+    if (gap < need) add(l.id, `Impossible travel: ${LOCS[e.loc].short} (${ft(e.to)}) \u2192 ${LOCS[l.loc].short} (${ft(l.from)}) needs ${need} min, only ${gap} given.`);
+  }
+  return issues;
+}
+function selfTestCase(cs) {
+  const R = ROLE_KEYS.map((k) => toMin(cs.roles[k].stops));
+  const out = [];
+  const Z = cs.detain, S = cs.scene;
+  ROLE_KEYS.forEach((k, i) => {
+    const e = routeErr(R[i]) || endErr(R[i], Z);
+    out.push([`${cs.roles[k].title}: every leg is an exact red string; detained at ${LOCS[Z].short} 20:30`, !e, e]);
+  });
+  const hk = ticksIn(cs.heist[0], cs.heist[1]);
+  out.push([`Thief is at the scene for the whole heist (${range(cs.heist[0], cs.heist[1])})`, hk.every((m) => occ(R[0], m) === S)]);
+  out.push([`Only the Thief is at the scene at the moment of the crime (${ft(cs.heist[1])})`, occ(R[1], cs.heist[1]) !== S && occ(R[2], cs.heist[1]) !== S]);
+  out.push([`Escape fits: ${LOCS[S].short}\u2192${LOCS[Z].short} needs ${DIST[S][Z]} min, thief had ${END - cs.heist[1]}`, DIST[S][Z] <= END - cs.heist[1]]);
+  cs.evidence.forEach((c) => {
+    const f = failChecks(c, R);
+    out.push([`Evidence #${c.id} \u201C${c.title}\u201D matches the true routes (${c.checks.length} checks)`, f.length === 0, f[0]]);
+  });
+  out.push(["Heist time is withheld until Evidence #2", !/\d:\d\d/.test(cs.evidence[0].lines.join(" ")) || cs.evidence[0].allowTimes === true]);
+  const Bl = toMin(cs.roles.thief.bluff.stops);
+  const be = routeErr(Bl) || endErr(Bl, Z) || (hk.some((m) => occ(Bl, m) === S) ? "admits the scene" : null);
+  out.push(["Thief\u2019s cover story is legal on the map", !be, be]);
+  const br = cs.evidence.filter((c) => failChecks(c, [Bl, R[1], R[2]]).length).map((c) => "#" + c.id);
+  out.push([`Cover story is broken by Evidence ${br.join(", ") || "\u2014 none!"}`, br.length > 0]);
+  out.push(["Innocents\u2019 true routes never trigger a map \u2717", [1, 2].every((i) => {
+    const st = R[i].map((x, j) => ({ id: j, loc: x[0], from: x[1], to: x[2] }));
+    return Object.values(analyse(st, cs, true)).flat().every((x) => x.warn);
+  })]);
+  return out;
+}
+const CASE1 = {
+  id: "c1",
+  code: "#1",
+  title: "The City Bank Job",
+  scene: "B",
+  detain: "D",
+  heist: [tm("19:50"), tm("20:00")],
+  sceneName: "City Bank vault",
+  intro: "The City Bank vault was emptied tonight. Three suspects were picked up at the Harbor Docks gate at 20:30.",
+  roles: {
+    thief: {
+      title: "THE THIEF",
+      tag: "GUILTY",
+      brief: "You cracked the City Bank vault. Nobody saw your face \u2014 but the map saw your feet.",
+      stops: [["C", "19:30", "19:30", "Finished a black coffee (paid 19:28) and left at 19:30."], ["B", "19:45", "20:00", "In by the rear alley 19:45. Vault open 19:50. Out the back at 20:00 \u2014 alarm trips."], ["M", "20:05", "20:05", "Through the Metro."], ["T", "20:20", "20:20", "Across the Train concourse."], ["D", "20:30", "20:30", "Docks gate via Station Rd. Detained."]],
+      bluff: {
+        stops: [["C", "19:30", "20:10", "\u201CDinner at Noir Caf\xE9, corner booth, the whole time.\u201D"], ["D", "20:30", "20:30", "\u201CWalked Caf\xE9 Rd to the Docks \u2014 20 min.\u201D"]],
+        tips: ["Your real escape has ZERO slack: Bank\u2192Metro\u2192Train\u2192Docks is exactly 30 min. Stay far from that path in your story.", "The cover story is perfect on the map. Its weakness is people: waitresses, logs, gates.", "If the caf\xE9 cracks, pivot to the park (Caf\xE9\u2192Park 10) \u2014 but every logged word is permanent.", "Copy an Innocent\u2019s story and force the Detectives to choose who is lying."]
+      }
+    },
+    inn1: {
+      title: "INNOCENT \xB7 THE ATM CUSTOMER",
+      tag: "INNOCENT",
+      brief: "You were inside the bank building twenty minutes before the heist. Bad luck \u2014 but every minute adds up.",
+      stops: [["B", "19:30", "19:40", "Withdrew cash in the ATM lobby. Main lobby dark."], ["P", "19:50", "20:00", "Alone on the fountain bench."], ["C", "20:10", "20:10", "Coffee to go; left at once."], ["D", "20:30", "20:30", "Caf\xE9 Rd to the Docks. Detained."]],
+      why: "You were inside the Bank at 19:30\u201319:40, and only 10 minutes away during the heist."
+    },
+    inn2: {
+      title: "INNOCENT \xB7 THE SMOKER",
+      tag: "INNOCENT",
+      brief: "You smoked on the bank steps, then walked the thief\u2019s escape route five minutes ahead of them.",
+      stops: [["T", "19:30", "19:30", "Off the 19:30 train, left at once."], ["M", "19:45", "19:45", "Through the Metro."], ["B", "19:50", "19:55", "Smoked on the FRONT steps waiting for a contact. Nobody used the front door."], ["M", "20:00", "20:00", "Back through the Metro."], ["T", "20:15", "20:15", "Across the concourse."], ["D", "20:25", "20:30", "Docks via Station Rd. Waited. Detained."]],
+      why: "You were on the Bank steps until 19:55 and took the only escape route there is."
+    }
+  },
+  evidence: [
+    { id: 1, kind: "report", title: "Crime Scene Report", sub: "City Bank \u2014 Precinct 9 Memo", lines: ["City Bank vault found breached by the night patrol. Exact time pending the alarm-company printout.", "Rear alley door forced. Perpetrator fled ON FOOT.", "Main lobby door: no entry or exit recorded all evening.", "All three suspects detained at the Harbor Docks gate (close of window)."], note: "Margin: \u201CWhich strings lead to the Docks?\u201D", checks: [] },
+    { id: 2, kind: "cctv", title: "Alarm Printout & Front CCTV", sub: "Alarm Co. fax + Front Camera Still #114", ts: "19:52:07", lines: ["ALARM CO.: vault time-lock bypassed 19:50. Rear alley door alarm 20:00.", "ATM lobby: one customer, 19:30 \u2192 19:40. Left on foot.", "Front steps: one figure smoking, 19:50 \u2192 19:55.", "Rear alley is NOT covered by the camera."], checks: [ck("B", "19:30", "19:40", 1)] },
+    { id: 3, kind: "receipt", title: "Noir Caf\xE9 \u2014 Register Tape", sub: "Till #1 \xB7 Waitress: Dolores", rows: [["19:28", "Black coffee (dine-in)", "$1.25"], ["", "Table cleared 19:30", ""], ["20:10", "Coffee TO GO", "$1.25"], ["", "Customer left at once", ""]], note: "Dolores: \u201CThose two were my only customers between half-seven and half-eight.\u201D", checks: [ck("C", "19:30", "19:30", 1), ck("C", "19:35", "20:05", 0), ck("C", "20:10", "20:10", 1), ck("C", "20:15", "20:30", 0)] },
+    { id: 4, kind: "statement", title: "Central Park Groundskeeper", sub: "Witness Statement \u2014 O. Pruitt", lines: ["\u201COne person sat on the fountain bench from 19:50 till 20:00, then walked off.\u201D", "\u201COther than them the park was empty from half-seven to half-eight.\u201D"], checks: [ck("P", "19:30", "19:45", 0), ck("P", "19:50", "20:00", 1), ck("P", "20:05", "20:30", 0)] },
+    { id: 5, kind: "ledger", title: "Metro Turnstile Log", sub: "Metro Station \xB7 Gate 3 printout", rows: [["19:45", "1 swipe"], ["20:00", "1 swipe"], ["20:05", "1 swipe"]], note: "No other swipes 19:30\u201320:30. One person per swipe.", checks: [ck("M", "19:30", "19:40", 0), ck("M", "19:45", "19:45", 1), ck("M", "19:50", "19:55", 0), ck("M", "20:00", "20:05", 1), ck("M", "20:10", "20:30", 0)] },
+    { id: 6, kind: "ledger", title: "Train Clerk & Docks Gate Log", sub: "Final corroboration", rows: [["19:30", "Train: 1 passenger off the 19:30, left at once"], ["19:35\u201320:10", "Train concourse: EMPTY"], ["20:15", "Train: walker crosses toward docks"], ["20:20", "Train: walker crosses toward docks"], ["20:25", "Docks gate: arrival via Station Rd"], ["20:30", "Docks gate: arrival via Station Rd"], ["20:30", "Docks gate: arrival via Caf\xE9 Rd"]], note: "Two arrivals by Station Rd. One by Caf\xE9 Rd.", checks: [ck("T", "19:30", "19:30", 1), ck("T", "19:35", "20:10", 0), ck("T", "20:15", "20:20", 1), ck("T", "20:25", "20:30", 0), ck("D", "19:30", "20:20", 0), ck("D", "20:25", "20:25", 1), ck("D", "20:30", "20:30", 3)] }
+  ],
+  solution: ["Evidence #2: the vault opened at 19:50 and the alarm tripped at 20:00. Bank 20:00 \u2192 Docks 20:30 has exactly one 30-minute path: Metro 20:05, Train 20:20, Station Rd 20:30.", "The Smoker walked that path five minutes early (Metro 20:00, Train 20:15, Docks 20:25). At 20:00 they were already at the Metro.", "The ATM Customer sat alone on the park bench until 20:00 (#4), then bought the 20:10 coffee (#3) and arrived by Caf\xE9 Rd.", "Left over: the 19:28 caf\xE9 receipt, the 20:05 swipe, the 20:20 concourse walker and the 20:30 Station Rd arrival. The Thief owns them all."]
+};
+const CASE2 = {
+  id: "c2",
+  code: "#2",
+  title: "The Midnight Museum Heist",
+  scene: "P",
+  detain: "T",
+  heist: [tm("19:40"), tm("19:45")],
+  sceneName: "Central Park Pavilion",
+  intro: "The City Museum\u2019s Jade Idol vanished from its touring display in the Central Park Pavilion. Three suspects were detained on the platform at the Train Station at 20:30.",
+  roles: {
+    thief: {
+      title: "THE THIEF",
+      tag: "GUILTY",
+      brief: "You lifted the Jade Idol from the pavilion and slipped away via the Bank corner and the Metro.",
+      stops: [["C", "19:30", "19:30", "Downed an espresso (paid 19:28) and left at 19:30."], ["P", "19:40", "19:45", "Inside the pavilion 19:40. Smashed the case at 19:45."], ["B", "19:55", "19:55", "Walked past the Bank corner."], ["M", "20:00", "20:00", "Through the Metro."], ["T", "20:15", "20:30", "Platform bench, waiting for the 20:35. Detained."]],
+      bluff: {
+        stops: [["C", "19:30", "19:45", "\u201CTea and the evening paper at Noir Caf\xE9.\u201D"], ["B", "20:00", "20:00", "\u201CWalked past the Bank\u2026\u201D"], ["M", "20:05", "20:05", "\u201C\u2026through the Metro\u2026\u201D"], ["T", "20:20", "20:30", "\u201C\u2026and waited for the 20:35.\u201D"]],
+        tips: ["Every leg of the cover story is legal on the map; it can only crack against the logs.", "Never put yourself in Central Park between 19:40 and 19:45.", "An Innocent walks your escape path ten minutes behind you. Their sightings can make yours look like theirs.", "Keep times round and boring. Don\u2019t volunteer the Bank."]
+      }
+    },
+    inn1: {
+      title: "INNOCENT \xB7 THE JOGGER",
+      tag: "INNOCENT",
+      brief: "You ran laps around the pavilion right after the theft. Sweaty, nervous \u2014 and innocent.",
+      stops: [["T", "19:30", "19:30", "Off the 19:30 train, out on the Park Path."], ["P", "19:50", "20:05", "Laps around the pavilion & jogging track."], ["T", "20:25", "20:30", "Back down the Park Path to catch the 20:35. Detained."]],
+      why: "You were circling the crime scene from 19:50 \u2014 five minutes after the glass broke."
+    },
+    inn2: {
+      title: "INNOCENT \xB7 THE BUSKER",
+      tag: "INNOCENT",
+      brief: "You played sax in the pavilion until just before the theft, then took the long way to the station.",
+      stops: [["P", "19:30", "19:35", "Played sax in the pavilion; packed up."], ["C", "19:45", "19:50", "Hot tea at Noir Caf\xE9."], ["B", "20:05", "20:05", "Walked Alley Row past the Bank."], ["M", "20:10", "20:10", "Through the Metro."], ["T", "20:25", "20:30", "Onto the platform. Detained."]],
+      why: "You were inside the pavilion until 19:35, and you walked the thief\u2019s escape route."
+    }
+  },
+  evidence: [
+    { id: 1, kind: "report", title: "Crime Scene Report", sub: "Central Park Pavilion \u2014 Precinct 9 Memo", lines: ["City Museum touring exhibit: the Jade Idol is gone; display case smashed.", "Found by the museum guard on his rounds. Exact time: see sensor log.", "Perpetrator fled ON FOOT.", "All three suspects detained on the Train Station platform, boarding the late train."], note: "Margin: \u201CWho had time to reach the station?\u201D", checks: [] },
+    { id: 2, kind: "cctv", title: "Pavilion Sensor Log", sub: "Glass-break & motion sensors", ts: "19:45:03", lines: ["GLASS-BREAK SENSOR: 19:45.", "Motion, pavilion & track: one person 19:30\u201319:35.", "Motion: one person 19:40\u201319:45.", "Motion: one person 19:50\u201320:05 (track lights on). Empty from 20:10."], checks: [ck("P", "19:30", "19:35", 1), ck("P", "19:40", "19:45", 1), ck("P", "19:50", "20:05", 1), ck("P", "20:10", "20:30", 0)] },
+    { id: 3, kind: "receipt", title: "Noir Caf\xE9 \u2014 Register Tape", sub: "Till #1 \xB7 Waitress: Dolores", rows: [["19:28", "Espresso (dine-in)", "$0.90"], ["", "Customer left 19:30", ""], ["19:45", "Hot tea (dine-in)", "$0.75"], ["", "Customer left 19:50", ""]], note: "Dolores: \u201COnly two customers all evening, never at the same time.\u201D", checks: [ck("C", "19:30", "19:30", 1), ck("C", "19:35", "19:40", 0), ck("C", "19:45", "19:50", 1), ck("C", "19:55", "20:30", 0)] },
+    { id: 4, kind: "cctv", title: "Bank Street Camera", sub: "City Bank exterior \xB7 CAM-02", ts: "19:55:41", lines: ["Pedestrian passes the Bank corner at 19:55.", "Pedestrian passes the Bank corner at 20:05.", "Nobody else on the Bank corner 19:30\u201320:30."], checks: [ck("B", "19:30", "19:50", 0), ck("B", "19:55", "19:55", 1), ck("B", "20:00", "20:00", 0), ck("B", "20:05", "20:05", 1), ck("B", "20:10", "20:30", 0)] },
+    { id: 5, kind: "ledger", title: "Metro Turnstile Log", sub: "Metro Station \xB7 Gate 3 printout", rows: [["20:00", "1 swipe"], ["20:10", "1 swipe"]], note: "No other swipes 19:30\u201320:30.", checks: [ck("M", "19:30", "19:55", 0), ck("M", "20:00", "20:00", 1), ck("M", "20:05", "20:05", 0), ck("M", "20:10", "20:10", 1), ck("M", "20:15", "20:30", 0)] },
+    { id: 6, kind: "ledger", title: "Train Concourse Clerk", sub: "Train Station \xB7 ticket office", rows: [["19:30", "1 passenger off the 19:30, out on the Park Path"], ["19:35\u201320:10", "Concourse EMPTY"], ["20:15", "1 arrival from the Metro Tunnel; sits on the bench"], ["20:25", "1 arrival from the Metro Tunnel"], ["20:25", "1 arrival from the Park Path"], ["20:30", "Police detain all three"]], note: "Bench occupant waited 20:15 until the raid.", checks: [ck("T", "19:30", "19:30", 1), ck("T", "19:35", "20:10", 0), ck("T", "20:15", "20:20", 1), ck("T", "20:25", "20:30", 3)] }
+  ],
+  solution: ["Evidence #2: someone was in the pavilion 19:40\u201319:45 when the glass broke. The Busker left at 19:35 and was drinking tea at 19:45 (#3). The Jogger arrived from the station at 19:50.", "The 19:40 visitor came from the caf\xE9: the espresso drinker left at 19:30, and Caf\xE9\u2192Park is exactly 10 minutes.", "The escape ran Park \u2192 Bank 19:55 (#4) \u2192 Metro 20:00 (#5) \u2192 Train 20:15 (#6). The Busker\u2019s sightings are 10 minutes later at each point (20:05, 20:10, 20:25).", "Whoever cannot account for the 19:28 espresso, the 19:55 Bank pass, the 20:00 swipe and the 20:15 bench is the Thief."]
+};
+const CASE3 = {
+  id: "c3",
+  code: "#3",
+  title: "The Harbor Smuggling Ring",
+  scene: "D",
+  detain: "C",
+  heist: [tm("19:40"), tm("19:50")],
+  sceneName: "Harbor Docks, Container 7",
+  intro: "The customs seal on Container 7 was cut and the contraband is gone. At 20:30 a police raid on Noir Caf\xE9 detained three suspects.",
+  roles: {
+    thief: {
+      title: "THE THIEF",
+      tag: "GUILTY",
+      brief: "You cut the customs seal on Container 7, then doubled back up Station Rd and through the park to the caf\xE9.",
+      stops: [["T", "19:30", "19:30", "Left the station by Station Rd."], ["D", "19:40", "19:50", "On the docks. Seal cut 19:50."], ["T", "20:00", "20:00", "Back across the concourse."], ["P", "20:20", "20:20", "Down the Park Path, through the park."], ["C", "20:30", "20:30", "Into Noir Caf\xE9 \u2014 straight into the raid."]],
+      bluff: {
+        stops: [["T", "19:30", "20:00", "\u201CWaiting at the Train Station for a delayed train.\u201D"], ["P", "20:20", "20:20", "\u201CGave up and walked the Park Path\u2026\u201D"], ["C", "20:30", "20:30", "\u201C\u2026and stopped for coffee. Then the raid.\u201D"]],
+        tips: ["The cover story is your true route with the docks cut out \u2014 the strongest kind of lie.", "Docks is 10 min from Train: a 20-minute round trip hides inside a 30-minute \u201Cwait\u201D.", "Never say the words \u201CStation Rd\u201D.", "If cornered, remember: the clerk\u2019s log is your enemy."]
+      }
+    },
+    inn1: {
+      title: "INNOCENT \xB7 THE DOCK WORKER",
+      tag: "INNOCENT",
+      brief: "You worked Container 7\u2019s pier until your shift ended. Then you went for stew.",
+      stops: [["D", "19:30", "19:35", "Finished shift at the gate; clocked out 19:35."], ["C", "19:55", "20:30", "Beef stew at table 4 until the raid."]],
+      why: "You were on the docks at 19:30\u201319:35 and you know Container 7 better than anyone."
+    },
+    inn2: {
+      title: "INNOCENT \xB7 THE PHOTOGRAPHER",
+      tag: "INNOCENT",
+      brief: "You came down to shoot the harbor at night \u2014 ten minutes after the crime.",
+      stops: [["B", "19:30", "19:30", "Left the Bank corner at 19:30."], ["M", "19:35", "19:35", "Through the Metro."], ["T", "19:50", "19:50", "Out of the Metro Tunnel, onto Station Rd."], ["D", "20:00", "20:05", "Photographed the harbor."], ["C", "20:25", "20:30", "Caf\xE9 Rd to Noir Caf\xE9. Detained in the raid."]],
+      why: "You walked onto the docks at 20:00 and took photos of the crime scene."
+    }
+  },
+  evidence: [
+    { id: 1, kind: "report", title: "Crime Scene Report", sub: "Harbor Docks \u2014 Customs & Precinct 9", lines: ["Customs seal on Container 7 found cut; contraband missing.", "Discovered by the harbor patrol. Exact time: see the seal timer.", "Perpetrator fled ON FOOT.", "Raid on Noir Caf\xE9 detains three suspects at the close of the window."], note: "Margin: \u201CCaf\xE9 is 20 min from the docks \u2014 by the short road.\u201D", checks: [] },
+    { id: 2, kind: "cctv", title: "Customs Seal & Gate Camera", sub: "Harbor gatehouse \xB7 CAM-07", ts: "19:35:12", lines: ["SEAL TIMER: Container 7 seal cut at 19:50.", "Gate camera: one dock worker 19:30\u201319:35; clocks out at 19:35 and leaves by Caf\xE9 Rd.", "Lens fogged by sea mist from 19:40 onward."], checks: [ck("D", "19:30", "19:35", 1)] },
+    { id: 3, kind: "cctv", title: "Bank ATM Cam & Metro Gate", sub: "City Bank CAM-01 + Metro Gate 3", ts: "19:30:20", lines: ["ATM cam: one person at 19:30, walks toward the Metro.", "Metro: one swipe at 19:35.", "No one else at the Bank or Metro all evening."], checks: [ck("B", "19:30", "19:30", 1), ck("B", "19:35", "20:30", 0), ck("M", "19:30", "19:30", 0), ck("M", "19:35", "19:35", 1), ck("M", "19:40", "20:30", 0)] },
+    { id: 4, kind: "receipt", title: "Noir Caf\xE9 \u2014 Register Tape", sub: "Till #1 \xB7 Waitress: Dolores", rows: [["19:55", "Beef stew, table 4", "$2.10"], ["", "Diner still seated at the raid", ""], ["20:25", "Walk-in, coffee", "$0.90"], ["20:30", "Walk-in \u2014 raid begins", ""]], note: "Dolores: \u201CEmpty before 19:55.\u201D", checks: [ck("C", "19:30", "19:50", 0), ck("C", "19:55", "20:20", 1), ck("C", "20:25", "20:25", 2), ck("C", "20:30", "20:30", 3)] },
+    { id: 5, kind: "ledger", title: "Train Concourse Clerk", sub: "Train Station \xB7 ticket office", rows: [["19:30", "1 person leaves by Station Rd toward the docks"], ["19:35\u201319:45", "Concourse EMPTY"], ["19:50", "1 person out of the Metro Tunnel, leaves by Station Rd"], ["19:55", "Concourse EMPTY"], ["20:00", "1 person in from Station Rd, leaves on the Park Path"], ["20:05\u201320:30", "Concourse EMPTY"]], note: "\u201CNobody waited for any delayed train. There wasn\u2019t one.\u201D", checks: [ck("T", "19:30", "19:30", 1), ck("T", "19:35", "19:45", 0), ck("T", "19:50", "19:50", 1), ck("T", "19:55", "19:55", 0), ck("T", "20:00", "20:00", 1), ck("T", "20:05", "20:30", 0)] },
+    { id: 6, kind: "ledger", title: "Park Keeper & Dock Gate Log", sub: "Final corroboration", rows: [["20:20", "Park: one walker, Park Path \u2192 caf\xE9. Otherwise empty."], ["19:30\u201319:35", "Docks: dock worker, out by Caf\xE9 Rd"], ["19:40\u201319:50", "Docks: 1 person, in AND out by Station Rd"], ["20:00\u201320:05", "Docks: 1 person, in by Station Rd, out by Caf\xE9 Rd"], ["20:10\u201320:30", "Docks: EMPTY"]], note: "Gate counts restored from the mist-proof turnstile.", checks: [ck("P", "19:30", "20:15", 0), ck("P", "20:20", "20:20", 1), ck("P", "20:25", "20:30", 0), ck("D", "19:30", "19:35", 1), ck("D", "19:40", "19:50", 1), ck("D", "19:55", "19:55", 0), ck("D", "20:00", "20:05", 1), ck("D", "20:10", "20:30", 0)] }
+  ],
+  solution: ["Evidence #2: the seal was cut at 19:50. The Dock Worker clocked out at 19:35 and was eating stew by 19:55 (#4). Docks\u2192Caf\xE9 is exactly 20 minutes.", "The Photographer came out of the Metro Tunnel at 19:50 (#5) and only reached the docks at 20:00.", "Whoever was on the docks 19:40\u201319:50 came AND left by Station Rd (#6): Train 19:30 \u2192 Docks 19:40 \u2192 Train 20:00 \u2192 Park 20:20 \u2192 Caf\xE9 20:30.", "A Thief claiming \u201Cwaiting at the station 19:30\u201320:00\u201D is broken by the clerk (#5): the concourse was empty 19:35\u201319:45."]
+};
+const FIXED = [CASE1, CASE2, CASE3];
+function mulberry32(a) {
+  return function() {
+    a |= 0;
+    a = a + 1831565813 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function walk(rng, from, t0, to, tEnd) {
+  if (t0 + DIST[from][to] > tEnd) return null;
+  const st = [[from, t0, t0]];
+  let cur = from, t = t0, prev = null, waits = 0;
+  for (let g = 0; g < 40 && cur !== to; g++) {
+    const slack = tEnd - t - DIST[cur][to];
+    if (slack >= 5 && waits < 2 && rng() < 0.3) {
+      const w = 5 * (1 + Math.floor(rng() * Math.min(3, slack / 5)));
+      st[st.length - 1][2] += w;
+      t += w;
+      waits++;
+      continue;
+    }
+    const c = ADJ[cur].filter(([n, w]) => t + w + DIST[n][to] <= tEnd);
+    if (!c.length) return null;
+    const sh = c.filter(([n, w]) => w + DIST[n][to] === DIST[cur][to]);
+    const nb = c.filter(([n]) => n !== prev);
+    const ch = rng() < 0.35 && nb.length ? nb[Math.floor(rng() * nb.length)] : sh.length ? sh[Math.floor(rng() * sh.length)] : c[0];
+    prev = cur;
+    cur = ch[0];
+    t += ch[1];
+    st.push([cur, t, t]);
+  }
+  return cur === to ? st : null;
+}
+function join(a, b) {
+  const l = a[a.length - 1];
+  if (l[0] !== b[0][0]) return null;
+  l[2] = b[0][2];
+  return a.concat(b.slice(1));
+}
+const PERSONAS = ["THE NIGHT NURSE", "THE COURIER", "THE SAXOPHONIST", "THE CAB DRIVER", "THE INSURANCE CLERK", "THE NIGHT PORTER", "THE FLOWER SELLER", "THE STREET PREACHER", "THE BOOKIE\u2019S RUNNER", "THE TRAIN CONDUCTOR"];
+function describe(st, i, cs, role) {
+  const [l, a, b] = st[i];
+  const L = LOCS[l].name;
+  const last = i === st.length - 1;
+  if (last) return a === b ? `Reached ${L} at ${ft(a)}. Detained.` : `Reached ${L} at ${ft(a)}, waited. Detained at 20:30.`;
+  if (role === "thief" && l === cs.scene && b === cs.heist[1]) return `THE JOB: at the ${cs.sceneName} ${range(a, b)}. ${FLAVOR[l].loot[0].toUpperCase() + FLAVOR[l].loot.slice(1)} gone at ${ft(b)}.`;
+  if (i === 0) return a === b ? `Left ${L} at 19:30.` : `At ${L} until ${ft(b)}.`;
+  if (l === cs.scene) return a === b ? `Passed right by the ${cs.sceneName}.` : `At the ${cs.sceneName} ${range(a, b)} (not during the job).`;
+  return a === b ? `Passed through ${L}.` : `Stopped at ${L} ${range(a, b)}.`;
+}
+function logRows(loc, routes) {
+  const rows = [];
+  let cur = null;
+  TICKS.forEach((m) => {
+    const key = routes.map((r, i) => occ(r, m) === loc ? i : "").join("");
+    if (cur && cur.key === key && key) cur.b = m;
+    else {
+      if (cur && cur.key) rows.push(cur);
+      cur = { key, a: m, b: m };
+    }
+  });
+  if (cur && cur.key) rows.push(cur);
+  return rows.map((r) => {
+    const n = r.key.length;
+    const nn = LOGCARD[loc].noun[n > 1 ? 1 : 0];
+    return [range(r.a, r.b), `${n === 1 ? "one" : n === 2 ? "two" : "three"} ${nn}`];
+  });
+}
+const tickChecks = (loc, routes) => TICKS.map((m) => [loc, m, m, countAt(routes, loc, m)]);
+function generateCase(seed) {
+  const rng = mulberry32(seed);
+  const pick = (a) => a[Math.floor(rng() * a.length)];
+  const ri = (a, b) => a + Math.floor(rng() * (b - a + 1));
+  for (let att = 0; att < 600; att++) {
+    const S = pick(LKEYS), Z = pick(LKEYS.filter((k) => k !== S));
+    const Hs = [tm("19:45"), tm("19:50"), tm("19:55"), tm("20:00")].filter((h) => h + DIST[S][Z] <= END);
+    if (!Hs.length) continue;
+    const H = pick(Hs), H0 = H - 5;
+    const ts = LKEYS.filter((k) => k !== S && START + DIST[k][S] <= H0);
+    if (!ts.length) continue;
+    const A = pick(ts);
+    let t1 = walk(rng, A, START, S, H0);
+    if (!t1) continue;
+    t1[t1.length - 1][2] = H;
+    const t2 = walk(rng, S, H, Z, END);
+    if (!t2) continue;
+    const thief = join(t1, t2);
+    thief[thief.length - 1][2] = END;
+    const A1 = pick(LKEYS.filter((k) => START + DIST[k][S] <= H - 15));
+    if (!A1) continue;
+    const e1 = walk(rng, A1, START, S, H - 15);
+    if (!e1) continue;
+    const ea = e1[e1.length - 1][1];
+    const ed = Math.min(ea + 5 * ri(0, 2), H - 10);
+    e1[e1.length - 1][2] = ed;
+    const e2 = walk(rng, S, ed, Z, END);
+    if (!e2) continue;
+    const early = join(e1, e2);
+    early[early.length - 1][2] = END;
+    const Ns = ADJ[S].filter(([n, w2]) => H + w2 + DIST[S][Z] <= END);
+    if (!Ns.length) continue;
+    const [N, w] = pick(Ns);
+    const A2 = pick(LKEYS.filter((k) => START + DIST[k][N] <= H));
+    const l1 = walk(rng, A2, START, N, H);
+    if (!l1) continue;
+    l1[l1.length - 1][2] = H;
+    const la = H + w;
+    let stay = 5 * ri(0, 1);
+    if (la + stay + DIST[S][Z] > END) stay = 0;
+    const l3 = walk(rng, S, la + stay, Z, END);
+    if (!l3) continue;
+    const late = join(l1.concat([[S, la, la + stay]]), l3);
+    if (!late) continue;
+    late[late.length - 1][2] = END;
+    const routes = [thief, early, late];
+    if (routes.some((r) => routeErr(r) || endErr(r, Z))) continue;
+    const hk = ticksIn(H0, H);
+    if (!hk.every((m) => occ(thief, m) === S) || hk.some((m) => occ(early, m) === S || occ(late, m) === S)) continue;
+    const sig = (r) => JSON.stringify(r);
+    if (sig(thief) === sig(early) || sig(thief) === sig(late) || sig(early) === sig(late)) continue;
+    let bluff = null;
+    for (let b = 0; b < 60 && !bluff; b++) {
+      const x = walk(rng, A, START, Z, END);
+      if (!x) continue;
+      x[x.length - 1][2] = END;
+      if (TICKS.every((m) => occ(x, m) !== S) && !routeErr(x)) bluff = x;
+    }
+    if (!bluff) continue;
+    const F = FLAVOR[S];
+    const others = LKEYS.filter((k) => k !== S && k !== Z);
+    const rk = {};
+    others.forEach((k) => rk[k] = rng());
+    const thiefTicks = (k) => TICKS.filter((m) => occ(thief, m) === k).length;
+    const order = [...others].sort((a, b) => thiefTicks(a) - thiefTicks(b) || rk[a] - rk[b]);
+    const cardFor = {};
+    const ev = [];
+    ev.push({ id: 1, kind: "report", title: "Crime Scene Report", sub: `${F.scene} \u2014 Precinct 9 Memo`, lines: [`${F.loot[0].toUpperCase() + F.loot.slice(1)} reported missing from the ${F.scene}.`, `Exact time pending the ${F.sensor.toLowerCase()}.`, "Perpetrator fled ON FOOT.", `All three suspects detained at ${LOCS[Z].name} at the close of the window.`], note: `Margin: \u201C${LOCS[S].short}\u2192${LOCS[Z].short}: count the strings.\u201D`, checks: [] });
+    const sRows = logRows(S, routes);
+    ev.push({ id: 2, kind: "cctv", title: `${F.sensor} & Scene Log`, sub: `${F.scene} \xB7 CAM-0${ri(1, 9)}`, ts: `${ft(H)}:0${ri(0, 9)}`, lines: [`${F.sensor.toUpperCase()}: ${F.loot} taken at ${ft(H)}. Scene disturbed from ${ft(H0)}.`], rows: sRows, note: "No one else logged at the scene 19:30\u201320:30.", checks: tickChecks(S, routes) });
+    cardFor[S] = 2;
+    order.slice(0, 3).forEach((k, i) => {
+      const C = LOGCARD[k];
+      const rows = logRows(k, routes);
+      ev.push({ id: 3 + i, kind: C.kind, title: C.title, sub: C.sub, ts: "\u2014", lines: rows.length ? [] : ["Nobody seen here all evening."], rows, note: rows.length ? "Otherwise empty 19:30\u201320:30." : "", checks: tickChecks(k, routes) });
+      cardFor[k] = 3 + i;
+    });
+    const k4 = order[3];
+    const zRows = logRows(Z, routes);
+    const arrivals = routes.map((r) => {
+      const l = r[r.length - 1];
+      const p = r[r.length - 2];
+      return [l[1], p ? `via ${roadName(p[0], Z)}` : "on site since 19:30"];
+    }).sort((a, b) => a[0] - b[0]);
+    ev.push({
+      id: 6,
+      kind: "ledger",
+      title: `${LOGCARD[k4].title.split(" ")[0]} Log & ${LOCS[Z].short} Arrivals`,
+      sub: "Final corroboration",
+      rows: [
+        ...logRows(k4, routes).map((r) => [r[0], `${LOCS[k4].short}: ${r[1]}`]),
+        ...logRows(k4, routes).length ? [] : [["all night", `${LOCS[k4].short}: nobody`]],
+        ...zRows.map((r) => [r[0], `${LOCS[Z].short}: ${r[1]}`]),
+        ...arrivals.map((a) => [ft(a[0]), `${LOCS[Z].short} arrival ${a[1]}`])
+      ],
+      note: "Both logs complete. No one else seen.",
+      checks: [...tickChecks(k4, routes), ...tickChecks(Z, routes)]
+    });
+    cardFor[k4] = 6;
+    cardFor[Z] = 6;
+    const [p1, p2] = (() => {
+      const a = pick(PERSONAS);
+      let b = pick(PERSONAS);
+      while (b === a) b = pick(PERSONAS);
+      return [a, b];
+    })();
+    const cs = {
+      id: "rand",
+      code: `R-${seed}`,
+      seed,
+      title: `Random Case R-${seed}: The ${F.crime}`,
+      scene: S,
+      detain: Z,
+      heist: [H0, H],
+      sceneName: F.scene,
+      generated: true,
+      intro: `${F.loot[0].toUpperCase() + F.loot.slice(1)} vanished from the ${F.scene}. Three suspects were detained at ${LOCS[Z].name} at 20:30.`
+    };
+    const mk = (st, role) => st.map((s, i) => [s[0], ft(s[1]), ft(s[2]), describe(st, i, cs, role)]);
+    const leftScene = early.filter((s) => s[0] === S && s[2] < H0).slice(-1)[0];
+    cs.roles = {
+      thief: {
+        title: "THE THIEF",
+        tag: "GUILTY",
+        brief: `You took ${F.loot} at ${ft(H)}. Get to ${LOCS[Z].name} with a story that adds up.`,
+        stops: mk(thief, "thief"),
+        bluff: {
+          stops: bluff.map((s, i) => [s[0], ft(s[1]), ft(s[2]), i === bluff.length - 1 ? "\u201C\u2026and that\u2019s where your officers found me.\u201D" : s[1] === s[2] ? `\u201CWalked through ${LOCS[s[0]].name}.\u201D` : `\u201CI was at ${LOCS[s[0]].name} the whole time.\u201D`]),
+          tips: [`Never place yourself at the ${LOCS[S].short} between ${ft(H0)} and ${ft(H)}.`, `Your real escape ${LOCS[S].short}\u2192${LOCS[Z].short} needs at least ${DIST[S][Z]} min \u2014 you had ${END - H}.`, "The cover story is legal on the map. Logs you haven\u2019t seen yet may break it \u2014 adapt early.", "One Innocent was at the scene before you, one came after. Lean on them."]
+        }
+      },
+      inn1: { title: `INNOCENT \xB7 ${p1}`, tag: "INNOCENT", brief: "You tell the truth. The map will protect you.", stops: mk(early, "inn1"), why: `You were at the ${F.scene} until ${ft(leftScene ? leftScene[2] : ed)} \u2014 shortly before the job.` },
+      inn2: { title: `INNOCENT \xB7 ${p2}`, tag: "INNOCENT", brief: "You tell the truth. The map will protect you.", stops: mk(late, "inn2"), why: `At ${ft(H)} you were at ${LOCS[N].name}, ${w} min from the scene, and you walked in at ${ft(la)}.` }
+    };
+    cs.evidence = ev;
+    const tr = thief.filter((s) => s[0] !== S).map((s) => `${range(s[1], s[2])} at ${LOCS[s[0]].short} (#${cardFor[s[0]]})`);
+    cs.solution = [
+      `Evidence #2: one person was at the ${F.scene} ${range(H0, H)}. No truthful story can cover it.`,
+      `${p1.toLowerCase().replace(/^the /, "The ")} left the scene at ${ft(ed)}, before the job began.`,
+      `${p2.toLowerCase().replace(/^the /, "The ")} was at ${LOCS[N].short} at ${ft(H)} and reached the scene only at ${ft(la)}.`,
+      `The Thief\u2019s remaining sightings, unclaimed by any honest suspect: ${tr.join("; ")}.`
+    ];
+    if (selfTestCase(cs).every((x) => x[1])) return cs;
+  }
+  return null;
+}
+function getRandomCase(seed) {
+  for (let s = seed; s < seed + 50; s++) {
+    const c = generateCase(s);
+    if (c) return c;
+  }
+  return null;
+}
+const { useState, useMemo } = React;
+const SUSPECT_COLORS = ["#e8b44a", "#7fb7e0", "#e07fb0"];
+const SUSPECT_INK = ["#9a6a08", "#2f6c9c", "#a8336f"];
+const DEFAULT_NAMES = ["Vera Lark", "Moss Kowalski", "Duke Reyes"];
+const cap = (s) => s[0].toUpperCase() + s.slice(1);
+function Icon({ k, c }) {
+  if (k === "B") return /* @__PURE__ */ React.createElement("g", { fill: c, transform: "translate(0,-8)" }, /* @__PURE__ */ React.createElement("polygon", { points: "-22,-8 0,-20 22,-8" }), [-16, -6, 4, 14].map((x) => /* @__PURE__ */ React.createElement("rect", { key: x, x, y: "-6", width: "4", height: "18" })), /* @__PURE__ */ React.createElement("rect", { x: "-22", y: "13", width: "44", height: "4" }));
+  if (k === "P") return /* @__PURE__ */ React.createElement("g", { fill: c, transform: "translate(0,-6)" }, /* @__PURE__ */ React.createElement("circle", { cx: "-12", cy: "-6", r: "9" }), /* @__PURE__ */ React.createElement("circle", { cx: "10", cy: "-9", r: "11" }), /* @__PURE__ */ React.createElement("rect", { x: "-13", y: "2", width: "3", height: "12" }), /* @__PURE__ */ React.createElement("rect", { x: "9", y: "1", width: "3", height: "13" }), /* @__PURE__ */ React.createElement("rect", { x: "-24", y: "14", width: "48", height: "2" }));
+  if (k === "M") return /* @__PURE__ */ React.createElement("g", { transform: "translate(0,-7)" }, /* @__PURE__ */ React.createElement("circle", { r: "17", fill: "none", stroke: c, strokeWidth: "3" }), /* @__PURE__ */ React.createElement("text", { textAnchor: "middle", y: "7", fontFamily: "Oswald", fontSize: "20", fill: c }, "M"));
+  if (k === "C") return /* @__PURE__ */ React.createElement("g", { fill: "none", stroke: c, strokeWidth: "3", transform: "translate(0,-6)" }, /* @__PURE__ */ React.createElement("path", { d: "M-14,-6 h24 v10 a12,12 0 0 1 -24,0z" }), /* @__PURE__ */ React.createElement("path", { d: "M10,-2 a6,6 0 0 1 0,10" }), /* @__PURE__ */ React.createElement("path", { d: "M-6,-18 q4,-5 0,-9 M2,-18 q4,-5 0,-9", strokeWidth: "2" }));
+  if (k === "T") return /* @__PURE__ */ React.createElement("g", { fill: c, transform: "translate(0,-6)" }, /* @__PURE__ */ React.createElement("rect", { x: "-18", y: "-16", width: "36", height: "24", rx: "5" }), /* @__PURE__ */ React.createElement("rect", { x: "-13", y: "-11", width: "11", height: "8", fill: "#888" }), /* @__PURE__ */ React.createElement("rect", { x: "2", y: "-11", width: "11", height: "8", fill: "#888" }), /* @__PURE__ */ React.createElement("circle", { cx: "-10", cy: "12", r: "4" }), /* @__PURE__ */ React.createElement("circle", { cx: "10", cy: "12", r: "4" }));
+  if (k === "D") return /* @__PURE__ */ React.createElement("g", { fill: "none", stroke: c, strokeWidth: "3", transform: "translate(0,-6)" }, /* @__PURE__ */ React.createElement("line", { x1: "0", y1: "-18", x2: "0", y2: "12" }), /* @__PURE__ */ React.createElement("path", { d: "M-14,4 a14,14 0 0 0 28,0" }), /* @__PURE__ */ React.createElement("line", { x1: "-8", y1: "-12", x2: "8", y2: "-12" }));
+  return null;
+}
+function CityMap({ cs, focus, setFocus = () => {
+}, overlay, ink, matrix }) {
+  const W = 900, H = 580;
+  const curve = (a, b) => {
+    const A = LOCS[a], B = LOCS[b];
+    const mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2;
+    const sag = a === "P" && b === "T" ? -95 : 18;
+    return { d: `M${A.x},${A.y} Q${mx},${my + sag} ${B.x},${B.y}`, lx: mx, ly: my + sag / 2 };
+  };
+  const fid = ink ? "i" : "d";
+  return /* @__PURE__ */ React.createElement("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Corkboard city map", style: { display: "block", width: "100%", height: "auto" } }, /* @__PURE__ */ React.createElement("defs", null, /* @__PURE__ */ React.createElement("filter", { id: "corkn" + fid }, /* @__PURE__ */ React.createElement("feTurbulence", { type: "fractalNoise", baseFrequency: "1.2", numOctaves: "2", seed: "3" }), /* @__PURE__ */ React.createElement("feColorMatrix", { values: "0 0 0 0 .35  0 0 0 0 .22  0 0 0 0 .1  0 0 0 .55 0" })), /* @__PURE__ */ React.createElement("filter", { id: "sh" + fid }, /* @__PURE__ */ React.createElement("feDropShadow", { dx: "2", dy: "4", stdDeviation: "3", floodOpacity: ink ? 0.25 : 0.55 })), /* @__PURE__ */ React.createElement("radialGradient", { id: "vig", cx: "50%", cy: "50%", r: "70%" }, /* @__PURE__ */ React.createElement("stop", { offset: "60%", stopColor: "#000", stopOpacity: "0" }), /* @__PURE__ */ React.createElement("stop", { offset: "100%", stopColor: "#000", stopOpacity: ".55" })), /* @__PURE__ */ React.createElement("radialGradient", { id: "pin", cx: "35%", cy: "35%", r: "60%" }, /* @__PURE__ */ React.createElement("stop", { offset: "0%", stopColor: "#ff8a80" }), /* @__PURE__ */ React.createElement("stop", { offset: "100%", stopColor: "#8e1410" })), /* @__PURE__ */ React.createElement("pattern", { id: "dots", width: "9", height: "9", patternUnits: "userSpaceOnUse" }, /* @__PURE__ */ React.createElement("circle", { cx: "2", cy: "2", r: ".9", fill: "#b9a27a" }), /* @__PURE__ */ React.createElement("circle", { cx: "6.5", cy: "6", r: ".6", fill: "#cdb894" }))), ink ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("rect", { width: W, height: H, fill: "#fbf7ee" }), /* @__PURE__ */ React.createElement("rect", { width: W, height: H, fill: "url(#dots)", opacity: ".7" }), /* @__PURE__ */ React.createElement("rect", { x: "4", y: "4", width: W - 8, height: H - 8, fill: "none", stroke: "#1c1712", strokeWidth: "3" })) : /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("rect", { width: W, height: H, fill: "#a87a48" }), /* @__PURE__ */ React.createElement("rect", { width: W, height: H, filter: `url(#corkn${fid})` }), /* @__PURE__ */ React.createElement("rect", { width: W, height: H, fill: "url(#vig)" })), /* @__PURE__ */ React.createElement("g", { opacity: ink ? 0.12 : 0.22, stroke: "#3a2a17", strokeWidth: "1" }, [...Array(14)].map((_, i) => /* @__PURE__ */ React.createElement("line", { key: "h" + i, x1: "0", x2: W, y1: 30 + i * 40, y2: 34 + i * 40 })), [...Array(20)].map((_, i) => /* @__PURE__ */ React.createElement("line", { key: "v" + i, y1: "0", y2: H, x1: 20 + i * 46, x2: 26 + i * 46 }))), /* @__PURE__ */ React.createElement("text", { x: "24", y: "40", fontFamily: "Special Elite", fontSize: "18", fill: "#2a1c0d", opacity: ".8" }, "PRECINCT 9 \u2014 CITY MAP (walking minutes)"), EDGES.map(([a, b, w]) => {
+    const c = curve(a, b);
+    const hot = focus && (focus === a || focus === b);
+    const road = roadName(a, b);
+    return /* @__PURE__ */ React.createElement("g", { key: a + b, opacity: focus && !hot ? 0.35 : 1 }, !ink && /* @__PURE__ */ React.createElement("path", { d: c.d, fill: "none", stroke: "#3a0a08", strokeWidth: hot ? 6 : 4.5, opacity: ".35", transform: "translate(2,3)" }), /* @__PURE__ */ React.createElement("path", { d: c.d, fill: "none", stroke: hot ? "#ff3b30" : "#c4221d", strokeWidth: hot ? 4 : 3 }), /* @__PURE__ */ React.createElement("g", { transform: `translate(${c.lx},${c.ly}) rotate(-4)`, filter: `url(#sh${fid})` }, /* @__PURE__ */ React.createElement("rect", { x: "-30", y: "-15", width: "60", height: "38", fill: "#f2ead2", stroke: ink ? "#1c1712" : "none", strokeWidth: "1" }), /* @__PURE__ */ React.createElement("text", { textAnchor: "middle", y: "5", fontFamily: "Special Elite", fontSize: "18", fill: "#1c1712" }, w, " min"), /* @__PURE__ */ React.createElement("text", { textAnchor: "middle", y: "18", fontFamily: "Courier Prime", fontSize: "10", fill: "#5a4a3a" }, road)));
+  }), overlay && overlay.map((o, oi) => /* @__PURE__ */ React.createElement("g", { key: oi }, o.pts.length > 1 && /* @__PURE__ */ React.createElement("polyline", { points: o.pts.map((p) => `${LOCS[p.loc].x + o.dx},${LOCS[p.loc].y + o.dy}`).join(" "), fill: "none", stroke: o.color, strokeWidth: "3", strokeDasharray: "8 6" }), o.pts.map((p, i) => /* @__PURE__ */ React.createElement("g", { key: i, transform: `translate(${LOCS[p.loc].x + o.dx + (i % 2 ? 10 : -10)},${LOCS[p.loc].y + o.dy - 52 - i * 2})` }, /* @__PURE__ */ React.createElement("rect", { x: "-28", y: "-11", width: "56", height: "20", rx: "3", fill: o.color }), /* @__PURE__ */ React.createElement("text", { textAnchor: "middle", y: "4", fontFamily: "Courier Prime", fontWeight: "700", fontSize: "11", fill: "#111" }, ft(p.from)))))), LKEYS.map((k) => {
+    const L = LOCS[k];
+    const on = focus === k;
+    const crime = cs && cs.scene === k;
+    const det = cs && cs.detain === k;
+    return /* @__PURE__ */ React.createElement("g", { key: k, style: { cursor: "pointer" }, transform: `translate(${L.x},${L.y})`, onClick: () => setFocus(on ? null : k), filter: `url(#sh${fid})` }, /* @__PURE__ */ React.createElement("g", { transform: `rotate(${k.charCodeAt(0) % 5 - 2})` }, /* @__PURE__ */ React.createElement("rect", { x: "-62", y: "-40", width: "124", height: "86", fill: "#f4f0e6", stroke: ink ? "#1c1712" : "none" }), /* @__PURE__ */ React.createElement("rect", { x: "-54", y: "-32", width: "108", height: "50", fill: ink ? "#fff" : crime ? "#2a0d0b" : "#1e2226", stroke: ink ? "#1c1712" : "none", strokeWidth: "1.5" }), /* @__PURE__ */ React.createElement(Icon, { k, c: ink ? "#1c1712" : "#e8dcc0" }), /* @__PURE__ */ React.createElement("text", { textAnchor: "middle", y: "38", fontFamily: "Permanent Marker", fontSize: "15", fill: "#1c1712" }, L.name), /* @__PURE__ */ React.createElement("text", { x: "-50", y: "-20", fontFamily: "Oswald", fontSize: "11", fill: ink ? "#1c1712" : "#e8dcc0" }, k), crime && /* @__PURE__ */ React.createElement("g", { transform: "translate(0,-50) rotate(-7)" }, /* @__PURE__ */ React.createElement("rect", { x: "-54", y: "-11", width: "108", height: "20", fill: "#b3201c" }), /* @__PURE__ */ React.createElement("text", { textAnchor: "middle", y: "4", fontFamily: "Oswald", fontSize: "12", letterSpacing: "2", fill: "#fff" }, "CRIME SCENE")), det && /* @__PURE__ */ React.createElement("g", { transform: "translate(0,58) rotate(3)" }, /* @__PURE__ */ React.createElement("rect", { x: "-62", y: "-11", width: "124", height: "20", fill: "#1f3a5a" }), /* @__PURE__ */ React.createElement("text", { textAnchor: "middle", y: "4", fontFamily: "Oswald", fontSize: "12", letterSpacing: "1.5", fill: "#fff" }, "DETAINED \xB7 20:30")), on && /* @__PURE__ */ React.createElement("rect", { x: "-66", y: "-44", width: "132", height: "94", fill: "none", stroke: "#e8b44a", strokeWidth: "4" })), /* @__PURE__ */ React.createElement("circle", { r: "7", cy: "-36", fill: "url(#pin)" }));
+  }), matrix && /* @__PURE__ */ React.createElement("g", { transform: "translate(688,14)" }, /* @__PURE__ */ React.createElement("rect", { width: "200", height: "178", fill: "#fffdf6", stroke: "#1c1712", strokeWidth: "2" }), /* @__PURE__ */ React.createElement("text", { x: "100", y: "18", textAnchor: "middle", fontFamily: "Oswald", fontSize: "12", letterSpacing: "1.5", fill: "#b3201c" }, "FASTEST TIMES (MIN)"), LKEYS.map((k, i) => /* @__PURE__ */ React.createElement("text", { key: "c" + k, x: 44 + i * 26, y: "38", textAnchor: "middle", fontFamily: "Oswald", fontSize: "12", fill: "#1c1712" }, k)), LKEYS.map((a, r) => /* @__PURE__ */ React.createElement("g", { key: a }, /* @__PURE__ */ React.createElement("text", { x: "16", y: 58 + r * 20, textAnchor: "middle", fontFamily: "Oswald", fontSize: "12", fill: "#1c1712" }, a), LKEYS.map((b, c) => /* @__PURE__ */ React.createElement("text", { key: b, x: 44 + c * 26, y: 58 + r * 20, textAnchor: "middle", fontFamily: "Courier Prime", fontSize: "12", fontWeight: a === b ? 400 : 700, fill: a === b ? "#aaa" : "#1c1712" }, a === b ? "\xB7" : DIST[a][b])))), /* @__PURE__ */ React.createElement("line", { x1: "28", y1: "43", x2: "194", y2: "43", stroke: "#1c1712" }), /* @__PURE__ */ React.createElement("line", { x1: "28", y1: "26", x2: "28", y2: "172", stroke: "#1c1712" })), focus && !matrix && /* @__PURE__ */ React.createElement("g", { transform: "translate(18,470)" }, /* @__PURE__ */ React.createElement("rect", { width: "250", height: "96", fill: "#f2ead2", filter: `url(#sh${fid})` }), /* @__PURE__ */ React.createElement("text", { x: "10", y: "20", fontFamily: "Oswald", fontSize: "13", fill: "#b3201c", letterSpacing: "1" }, "FASTEST FROM ", LOCS[focus].short.toUpperCase()), LKEYS.filter((k) => k !== focus).map((k, i) => /* @__PURE__ */ React.createElement("text", { key: k, x: 10 + i % 2 * 120, y: 42 + Math.floor(i / 2) * 20, fontFamily: "Courier Prime", fontSize: "13", fill: "#1c1712" }, LOCS[k].short, ": ", DIST[focus][k], "m"))));
+}
+function Rows({ rows, three }) {
+  if (!rows || !rows.length) return null;
+  return /* @__PURE__ */ React.createElement("table", { className: "evrows" }, /* @__PURE__ */ React.createElement("tbody", null, rows.map((r, i) => /* @__PURE__ */ React.createElement("tr", { key: i }, /* @__PURE__ */ React.createElement("td", { className: "t" }, r[0]), /* @__PURE__ */ React.createElement("td", null, r[1]), three && /* @__PURE__ */ React.createElement("td", { style: { textAlign: "right" } }, r[2])))));
+}
+function EvidenceCard({ e, rot = 0 }) {
+  const style = { transform: `rotate(${rot}deg)` };
+  const num = /* @__PURE__ */ React.createElement("span", { className: "num" }, "EVIDENCE #", e.id);
+  if (e.kind === "cctv") return /* @__PURE__ */ React.createElement("div", { className: "ecard cctv", style }, num, /* @__PURE__ */ React.createElement("h4", null, e.title), /* @__PURE__ */ React.createElement("div", { className: "sub" }, e.sub), /* @__PURE__ */ React.createElement("div", { className: "screen" }, /* @__PURE__ */ React.createElement("span", { className: "rec" }, "\u25CF REC"), /* @__PURE__ */ React.createElement("span", { className: "ts" }, e.ts), /* @__PURE__ */ React.createElement("svg", { viewBox: "0 0 200 70", width: "100%", height: "70", style: { position: "absolute", inset: 0 }, preserveAspectRatio: "none" }, /* @__PURE__ */ React.createElement("g", { stroke: "currentColor", fill: "none", opacity: ".55" }, /* @__PURE__ */ React.createElement("rect", { x: "16", y: "14", width: "60", height: "46" }), /* @__PURE__ */ React.createElement("polygon", { points: "100,62 190,62 178,40 112,40" })), /* @__PURE__ */ React.createElement("g", { fill: "currentColor", opacity: ".55" }, /* @__PURE__ */ React.createElement("circle", { cx: "146", cy: "22", r: "5" }), /* @__PURE__ */ React.createElement("rect", { x: "142", y: "27", width: "8", height: "13" })))), (e.lines || []).map((l, i) => /* @__PURE__ */ React.createElement("p", { key: i }, l)), /* @__PURE__ */ React.createElement(Rows, { rows: e.rows }), e.note && /* @__PURE__ */ React.createElement("p", { className: "cnote" }, e.note));
+  if (e.kind === "receipt") return /* @__PURE__ */ React.createElement("div", { className: "ecard receipt", style }, num, /* @__PURE__ */ React.createElement("h4", { style: { textAlign: "center" } }, "\u2605 NOIR CAF\xC9 \u2605"), /* @__PURE__ */ React.createElement("div", { className: "sub", style: { textAlign: "center" } }, e.sub, " \xB7 OPEN LATE"), (e.lines || []).map((l, i) => /* @__PURE__ */ React.createElement("p", { key: i }, l)), /* @__PURE__ */ React.createElement(Rows, { rows: e.rows, three: e.rows && e.rows[0] && e.rows[0].length > 2 }), e.note && /* @__PURE__ */ React.createElement("p", { className: "cnote", style: { fontStyle: "italic" } }, e.note));
+  if (e.kind === "statement") return /* @__PURE__ */ React.createElement("div", { className: "ecard lined", style }, num, /* @__PURE__ */ React.createElement("div", { className: "tape" }), /* @__PURE__ */ React.createElement("h4", null, e.title), /* @__PURE__ */ React.createElement("div", { className: "sub" }, e.sub), (e.lines || []).map((l, i) => /* @__PURE__ */ React.createElement("p", { key: i }, l)), (e.rows || []).map((r, i) => /* @__PURE__ */ React.createElement("p", { key: "r" + i }, "\u201C", r[0], ": ", r[1], ".\u201D")), e.note && /* @__PURE__ */ React.createElement("p", null, "\u201C", e.note, "\u201D"), /* @__PURE__ */ React.createElement("p", { className: "sig" }, "\u2014 signed, O.P."));
+  return /* @__PURE__ */ React.createElement("div", { className: "ecard paper " + (e.kind === "report" ? "report" : "ledger"), style }, num, /* @__PURE__ */ React.createElement("div", { className: "tape" }), /* @__PURE__ */ React.createElement("h4", null, e.title), /* @__PURE__ */ React.createElement("div", { className: "sub typed" }, e.sub), e.kind === "report" ? /* @__PURE__ */ React.createElement("ul", { className: "typed" }, e.lines.map((l, i) => /* @__PURE__ */ React.createElement("li", { key: i }, l))) : (e.lines || []).map((l, i) => /* @__PURE__ */ React.createElement("p", { key: i, className: "typed" }, l)), /* @__PURE__ */ React.createElement(Rows, { rows: e.rows }), e.note && /* @__PURE__ */ React.createElement("p", { className: e.kind === "report" ? "margin" : "typed cnote" }, e.note));
+}
+function RouteList({ stops, compact }) {
+  return /* @__PURE__ */ React.createElement("ul", { className: "route" }, stops.map((s, i) => /* @__PURE__ */ React.createElement("li", { key: i }, /* @__PURE__ */ React.createElement("b", null, s[1] === s[2] ? s[1] : `${s[1]}\u2013${s[2]}`), /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("b", null, LOCS[s[0]].name, "."), !compact && /* @__PURE__ */ React.createElement(React.Fragment, null, " ", s[3])))));
+}
+function RoleCard({ cs, role, name }) {
+  const R = cs.roles[role];
+  const col = role === "thief" ? "#b3201c" : "#3f6b3a";
+  return /* @__PURE__ */ React.createElement("div", { className: "paper rolecard", style: { borderTop: `8px solid ${col}` } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 } }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "typed", style: { fontSize: 12 } }, "SECRET ROLE \xB7 CASE ", cs.code, name ? ` \xB7 ${name}` : ""), /* @__PURE__ */ React.createElement("div", { className: "rtitle", style: { color: col } }, R.title)), /* @__PURE__ */ React.createElement("span", { className: "stamp", style: { color: col, borderColor: col } }, R.tag)), /* @__PURE__ */ React.createElement("p", { className: "typed", style: { fontSize: 14 } }, R.brief), /* @__PURE__ */ React.createElement("div", { className: "minihead" }, "YOUR TRUE ROUTE"), /* @__PURE__ */ React.createElement(RouteList, { stops: R.stops }), R.why && /* @__PURE__ */ React.createElement("div", { className: "note" }, "Why you look guilty: ", R.why, " ", /* @__PURE__ */ React.createElement("b", null, "Tell the truth \u2014 the math protects you.")), R.bluff && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: "minihead", style: { marginTop: 12 } }, "SUGGESTED COVER STORY"), /* @__PURE__ */ React.createElement(RouteList, { stops: R.bluff.stops }), /* @__PURE__ */ React.createElement("div", { className: "note danger" }, /* @__PURE__ */ React.createElement("b", null, "BLUFF GUIDE"), /* @__PURE__ */ React.createElement("ul", { style: { margin: "6px 0 0", paddingLeft: 18 } }, R.bluff.tips.map((t, i) => /* @__PURE__ */ React.createElement("li", { key: i, style: { marginBottom: 4 } }, t))))));
+}
+function TimelineStrip({ cs, name, color, stmts, issues, heistKnown }) {
+  const span = END - START;
+  return /* @__PURE__ */ React.createElement("div", { className: "tlrow" }, /* @__PURE__ */ React.createElement("div", { style: { color } }, name), /* @__PURE__ */ React.createElement("div", { className: "tlbar" }, heistKnown && /* @__PURE__ */ React.createElement("div", { className: "heistband", style: { left: `${(cs.heist[0] - START) / span * 100}%`, width: `${Math.max(cs.heist[1] - cs.heist[0], 2) / span * 100}%` } }), stmts.map((s) => {
+    const w = Math.max((s.to - s.from) / span * 100, 1.6);
+    return /* @__PURE__ */ React.createElement("div", { key: s.id, className: "tlseg" + ((issues[s.id] || []).some((i) => !i.warn) ? " bad" : ""), title: `${LOCS[s.loc].name} ${range(s.from, s.to)}`, style: { left: `calc(${(s.from - START) / span * 100}% - ${s.to === s.from ? 3 : 0}px)`, width: `${w}%`, background: LOCS[s.loc].color } }, w > 8 ? LOCS[s.loc].short : "");
+  })));
+}
+function Flags({ list }) {
+  return (list || []).map((m, i) => /* @__PURE__ */ React.createElement("span", { key: i, className: "flag", style: m.warn ? { color: "#9a6a08" } : null }, m.warn ? "\u26A0" : "\u2717", " ", m.msg));
+}
+function shuffle(a) {
+  a = [...a];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+const newSeed = () => 1e4 + Math.floor(Math.random() * 89999);
+function App() {
+  const [tab, setTab] = useState("board");
+  const [caseSel, setCaseSel] = useState("c1");
+  const [seed, setSeed] = useState(newSeed);
+  const [seedInput, setSeedInput] = useState("");
+  const [pending, setPending] = useState(null);
+  const [names, setNames] = useState(DEFAULT_NAMES);
+  const [deal, setDeal] = useState(null);
+  const [peek, setPeek] = useState(null);
+  const [round, setRound] = useState(1);
+  const [revealed, setRevealed] = useState(0);
+  const [log, setLog] = useState([]);
+  const [perRound, setPerRound] = useState(1);
+  const [form, setForm] = useState({ s: 0, from: "19:50", to: "19:50", loc: "B", quote: "" });
+  const [focus, setFocus] = useState(null);
+  const [overlayOn, setOverlayOn] = useState([]);
+  const [accuse, setAccuse] = useState(false);
+  const [verdict, setVerdict] = useState(null);
+  const [gameOver, setGameOver] = useState(false);
+  const randomCase = useMemo(() => getRandomCase(seed), [seed]);
+  const cs = caseSel === "rand" ? randomCase : FIXED.find((c) => c.id === caseSel);
+  const heistKnown = revealed >= 2;
+  const thisRound = log.filter((l) => l.round === round).length;
+  const evidenceDone = revealed >= round;
+  const issuesBySuspect = useMemo(() => names.map((_, i) => analyse(log.filter((l) => l.s === i), cs, heistKnown)), [log, names, cs, heistKnown]);
+  const allIssues = Object.assign({}, ...issuesBySuspect);
+  const resetGame = () => {
+    setDeal(null);
+    setRound(1);
+    setRevealed(0);
+    setLog([]);
+    setVerdict(null);
+    setGameOver(false);
+    setPeek(null);
+    setOverlayOn([]);
+    setAccuse(false);
+  };
+  const switchTo = (sel, sd) => {
+    const go = () => {
+      setCaseSel(sel);
+      if (sd) setSeed(sd);
+      resetGame();
+      setPending(null);
+    };
+    if (log.length || revealed) {
+      setPending({ go, label: sel === "rand" ? "a new random case" : `Case ${FIXED.find((c) => c.id === sel).code}` });
+    } else go();
+  };
+  const lock = () => {
+    const f = tm(form.from), t = tm(form.to);
+    setLog([...log, { id: Date.now(), round, s: +form.s, loc: form.loc, from: Math.min(f, t), to: Math.max(f, t), quote: form.quote.trim() }]);
+    setForm({ ...form, quote: "" });
+  };
+  const overlay = overlayOn.map((i) => ({ color: SUSPECT_COLORS[i], dx: (i - 1) * 8, dy: (i - 1) * 6, pts: log.filter((l) => l.s === i).sort((a, b) => a.from - b.from) }));
+  const stepState = (n) => {
+    if (n === 1) return evidenceDone ? "ok" : "on";
+    if (n < 4) return !evidenceDone ? "" : thisRound >= perRound ? "ok" : "on";
+    return thisRound >= perRound ? "ok" : thisRound > 0 ? "on" : "";
+  };
+  return /* @__PURE__ */ React.createElement("div", { className: "app" }, /* @__PURE__ */ React.createElement("div", { className: "masthead" }, /* @__PURE__ */ React.createElement("div", { className: "logo" }, "ALIBI", /* @__PURE__ */ React.createElement("small", null, "A LOGISTICAL DEDUCTION GAME \xB7 3\u20135 PLAYERS \xB7 PROTOTYPE v0.2")), /* @__PURE__ */ React.createElement("div", { className: "casepicker" }, /* @__PURE__ */ React.createElement("div", { className: "cp-label" }, "CASE FILES"), /* @__PURE__ */ React.createElement("div", { className: "cp-row" }, FIXED.map((c) => /* @__PURE__ */ React.createElement("button", { key: c.id, className: "folder" + (caseSel === c.id ? " on" : ""), onClick: () => caseSel !== c.id && switchTo(c.id) }, /* @__PURE__ */ React.createElement("span", null, c.code), c.title.replace(/^The /, ""))), /* @__PURE__ */ React.createElement("button", { className: "folder rand" + (caseSel === "rand" ? " on" : ""), onClick: () => switchTo("rand", caseSel === "rand" ? newSeed() : seed) }, /* @__PURE__ */ React.createElement("span", null, "\u{1F3B2}"), caseSel === "rand" ? "New random heist" : "Randomize heist")), caseSel === "rand" && /* @__PURE__ */ React.createElement("div", { className: "cp-seed" }, "Case code ", /* @__PURE__ */ React.createElement("b", null, cs.code), " \u2014 share it so another table gets the same puzzle.", /* @__PURE__ */ React.createElement("input", { value: seedInput, placeholder: "R-12345", onChange: (e) => setSeedInput(e.target.value) }), /* @__PURE__ */ React.createElement("button", { className: "btn small ghost", onClick: () => {
+    const n = parseInt(seedInput.replace(/\D/g, ""));
+    if (n) switchTo("rand", n);
+  } }, "Load code")))), pending && /* @__PURE__ */ React.createElement("div", { className: "confirmbar" }, "Switching to ", pending.label, " wipes the current game (roles, evidence, testimony). ", /* @__PURE__ */ React.createElement("button", { className: "btn small", onClick: pending.go }, "Switch case"), " ", /* @__PURE__ */ React.createElement("button", { className: "btn small ghost", onClick: () => setPending(null) }, "Keep playing")), /* @__PURE__ */ React.createElement("div", { className: "casebar" }, /* @__PURE__ */ React.createElement("b", null, "CASE ", cs.code, ": ", cs.title.replace(/^Random Case R-\d+: /, "").toUpperCase()), " \xB7 Crime scene: ", /* @__PURE__ */ React.createElement("span", { className: "red" }, cs.sceneName), " \xB7 Detained: ", /* @__PURE__ */ React.createElement("span", { className: "blue" }, LOCS[cs.detain].name, " at 20:30"), " \xB7 Window 19:30\u201320:30 ", cs.generated && /* @__PURE__ */ React.createElement("span", { className: "gen" }, "PROCEDURAL \xB7 self-tested")), /* @__PURE__ */ React.createElement("div", { className: "tabs" }, [["board", "Corkboard"], ["roles", "Secret Roles"], ["record", "Case Record"], ["rules", "Rules & Self-Test"], ["print", "Print & Play"]].map(([k, l]) => /* @__PURE__ */ React.createElement("button", { key: k, className: "tab" + (tab === k ? " on" : ""), onClick: () => setTab(k) }, l))), tab === "board" && /* @__PURE__ */ React.createElement("div", { className: "sheet" }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 } }, /* @__PURE__ */ React.createElement("div", { className: "tracker" }, [1, 2, 3, 4, 5, 6].map((r) => /* @__PURE__ */ React.createElement("div", { key: r, className: "rnd " + (r < round || gameOver ? "done" : r === round ? "now" : "") }, r)), /* @__PURE__ */ React.createElement("div", { style: { alignSelf: "center", marginLeft: 8 }, className: "typed" }, gameOver ? "Interrogation closed" : `Round ${round} of 6`)), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, flexWrap: "wrap" } }, /* @__PURE__ */ React.createElement("button", { className: "btn amber", disabled: evidenceDone || gameOver || !deal, onClick: () => setRevealed((r) => r + 1) }, "Reveal Evidence #", Math.min(round, 6)), /* @__PURE__ */ React.createElement("button", { className: "btn", onClick: () => setAccuse(true), disabled: !deal }, "Final Accusation"))), !deal && /* @__PURE__ */ React.createElement("div", { className: "note", style: { color: "#1c1712", marginBottom: 12 } }, "Pick a case file above, then go to ", /* @__PURE__ */ React.createElement("b", null, "Secret Roles"), " to name the three suspects and deal their hidden cards."), /* @__PURE__ */ React.createElement("div", { className: "steps" }, [["STEP 1", "Reveal 1 Evidence Card"], ["STEP 2", "Detectives pick a suspect + a time"], ["STEP 3", "Suspect answers with place & times"], ["STEP 4", "Lock it into the Case Record"]].map(([a, b], i) => /* @__PURE__ */ React.createElement("div", { key: i, className: "step " + (deal && !gameOver ? stepState(i + 1) : "") }, /* @__PURE__ */ React.createElement("b", null, a), b))), /* @__PURE__ */ React.createElement("div", { className: "grid2" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h2", { className: "label" }, "City Map \u2014 click a location for fastest times"), /* @__PURE__ */ React.createElement("div", { className: "cork" }, /* @__PURE__ */ React.createElement(CityMap, { cs, focus, setFocus, overlay })), /* @__PURE__ */ React.createElement("div", { className: "legend" }, /* @__PURE__ */ React.createElement("span", null, "Plot claimed route:"), names.map((n, i) => /* @__PURE__ */ React.createElement("label", { key: i, style: { color: SUSPECT_COLORS[i], cursor: "pointer" } }, /* @__PURE__ */ React.createElement("input", { type: "checkbox", checked: overlayOn.includes(i), onChange: () => setOverlayOn((o) => o.includes(i) ? o.filter((x) => x !== i) : [...o, i]) }), " ", n))), /* @__PURE__ */ React.createElement("p", { className: "muted", style: { fontSize: 13 } }, cs.intro, " Travel only along red strings; each takes exactly its minutes; waiting is allowed.")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h2", { className: "label" }, "Evidence Deck \xB7 ", revealed, "/6 revealed"), revealed === 0 ? /* @__PURE__ */ React.createElement("div", { className: "facedown" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "big" }, "6"), "EVIDENCE CARDS", /* @__PURE__ */ React.createElement("br", null), "face down")) : /* @__PURE__ */ React.createElement(EvidenceCard, { e: cs.evidence[revealed - 1], rot: -1 }), revealed > 1 && /* @__PURE__ */ React.createElement("p", { className: "muted", style: { fontSize: 13 } }, "Earlier evidence is pinned in the Case Record tab."), /* @__PURE__ */ React.createElement("h2", { className: "label", style: { marginTop: 16 } }, "Interrogation \u2014 Round ", round), /* @__PURE__ */ React.createElement(InterrogationForm, { ...{ names, form, setForm, lock, disabled: !deal || gameOver || !evidenceDone || thisRound >= perRound } }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginTop: 10, alignItems: "center", flexWrap: "wrap" } }, /* @__PURE__ */ React.createElement("button", { className: "btn ghost", disabled: gameOver || thisRound < perRound, onClick: () => {
+    if (round < 6) setRound(round + 1);
+    else {
+      setGameOver(true);
+      setAccuse(true);
+    }
+  } }, round < 6 ? `End Round ${round} \u2192` : "Close interrogation \u2192 Accuse"), /* @__PURE__ */ React.createElement("span", { className: "muted", style: { fontSize: 12 } }, thisRound, "/", perRound, " statement(s) locked this round")), /* @__PURE__ */ React.createElement(RecentLog, { log, names, issues: allIssues })))), tab === "roles" && /* @__PURE__ */ React.createElement("div", { className: "sheet" }, /* @__PURE__ */ React.createElement("h2", { className: "label" }, "Suspects & Secret Role Cards \u2014 Case ", cs.code), /* @__PURE__ */ React.createElement("p", { className: "typed", style: { maxWidth: 820 } }, "Pass the screen. Detectives look away while each suspect opens ", /* @__PURE__ */ React.createElement("b", null, "only their own"), " card. Roles are dealt at random each game: one Thief, two Innocents."), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 10, flexWrap: "wrap", margin: "10px 0 18px", alignItems: "end" } }, names.map((n, i) => /* @__PURE__ */ React.createElement("label", { key: i, className: "form", style: { padding: 8, display: "block" } }, /* @__PURE__ */ React.createElement("span", { style: { display: "block", color: SUSPECT_COLORS[i], fontFamily: "Oswald", fontSize: 12 } }, "SUSPECT ", i + 1), /* @__PURE__ */ React.createElement("input", { value: n, onChange: (e) => {
+    const c = [...names];
+    c[i] = e.target.value;
+    setNames(c);
+  }, className: "inp" }))), /* @__PURE__ */ React.createElement("label", { className: "form", style: { padding: 8, display: "block" } }, /* @__PURE__ */ React.createElement("span", { style: { display: "block", fontFamily: "Oswald", fontSize: 12 } }, "DETECTIVES"), /* @__PURE__ */ React.createElement("select", { className: "inp", value: perRound, onChange: (e) => setPerRound(+e.target.value) }, /* @__PURE__ */ React.createElement("option", { value: 1 }, "1 (4 players) \xB7 1 question/round"), /* @__PURE__ */ React.createElement("option", { value: 2 }, "2 (5 players) \xB7 2 questions/round"))), /* @__PURE__ */ React.createElement("button", { className: "btn", onClick: () => {
+    setDeal(shuffle(ROLE_KEYS));
+    setPeek(null);
+  } }, deal ? "Re-deal roles" : "Deal secret roles"), deal && /* @__PURE__ */ React.createElement("button", { className: "btn ghost", onClick: resetGame }, "Reset game")), deal && /* @__PURE__ */ React.createElement("div", { className: "roles" }, names.map((n, i) => /* @__PURE__ */ React.createElement("div", { key: i }, peek === i ? /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement(RoleCard, { cs, role: deal[i], name: n }), /* @__PURE__ */ React.createElement("button", { className: "btn", style: { marginTop: 10, width: "100%" }, onClick: () => setPeek(null) }, "Hide card \u2014 pass the screen")) : /* @__PURE__ */ React.createElement("div", { className: "polaroid", style: { transform: `rotate(${[-2, 1.5, -1][i]}deg)` } }, /* @__PURE__ */ React.createElement("div", { className: "photo" }, /* @__PURE__ */ React.createElement("svg", { viewBox: "0 0 120 120", width: "120" }, /* @__PURE__ */ React.createElement("circle", { cx: "60", cy: "42", r: "22", fill: "#33373c" }), /* @__PURE__ */ React.createElement("path", { d: "M18,120 q42,-60 84,0z", fill: "#33373c" }), /* @__PURE__ */ React.createElement("rect", { x: "34", y: "34", width: "52", height: "12", fill: "#000" })), /* @__PURE__ */ React.createElement("span", { className: "stamp", style: { position: "absolute", bottom: 10, right: 10, color: "#e8b44a", borderColor: "#e8b44a" } }, "CLASSIFIED")), /* @__PURE__ */ React.createElement("div", { className: "name", style: { color: SUSPECT_INK[i] } }, n), /* @__PURE__ */ React.createElement("p", { className: "typed", style: { fontSize: 13, textAlign: "center", margin: "4px 0 10px" } }, "Role: ", /* @__PURE__ */ React.createElement("span", { className: "redacted" }, "THIEF/INNOCENT")), /* @__PURE__ */ React.createElement("button", { className: "btn", style: { width: "100%" }, onClick: () => setPeek(i) }, "I am ", n.split(" ")[0], " \u2014 open my card")))))), tab === "record" && /* @__PURE__ */ React.createElement("div", { className: "sheet" }, /* @__PURE__ */ React.createElement("div", { className: "grid2" }, /* @__PURE__ */ React.createElement("div", { className: "paper record" }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "start" } }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "typed", style: { fontSize: 12 } }, "PRECINCT 9 \xB7 INTERROGATION TRANSCRIPT"), /* @__PURE__ */ React.createElement("h3", { className: "typed" }, "CASE RECORD \u2014 ", cs.code, " ", cs.title.replace(/^Random Case R-\d+: /, ""))), /* @__PURE__ */ React.createElement("span", { className: "stamp" }, "PERMANENT")), /* @__PURE__ */ React.createElement("table", null, /* @__PURE__ */ React.createElement("thead", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("th", null, "RND"), /* @__PURE__ */ React.createElement("th", null, "SUSPECT"), /* @__PURE__ */ React.createElement("th", null, "TIME"), /* @__PURE__ */ React.createElement("th", null, "LOCATION & STATEMENT"), /* @__PURE__ */ React.createElement("th", null))), /* @__PURE__ */ React.createElement("tbody", null, log.length === 0 && /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { colSpan: "5", className: "typed", style: { opacity: 0.6, padding: 20 } }, "No testimony on record yet.")), log.map((l) => /* @__PURE__ */ React.createElement("tr", { key: l.id }, /* @__PURE__ */ React.createElement("td", null, l.round), /* @__PURE__ */ React.createElement("td", { style: { color: SUSPECT_INK[l.s], fontWeight: 700 } }, names[l.s]), /* @__PURE__ */ React.createElement("td", { style: { whiteSpace: "nowrap" } }, range(l.from, l.to)), /* @__PURE__ */ React.createElement("td", null, /* @__PURE__ */ React.createElement("b", null, LOCS[l.loc].name), l.quote && /* @__PURE__ */ React.createElement(React.Fragment, null, " \u2014 \u201C", l.quote, "\u201D"), /* @__PURE__ */ React.createElement(Flags, { list: allIssues[l.id] })), /* @__PURE__ */ React.createElement("td", null, /* @__PURE__ */ React.createElement("span", { className: "locked" }, "\u{1F512} LOCKED")))))), /* @__PURE__ */ React.createElement("div", { className: "typed", style: { fontSize: 12, margin: "14px 0 4px" } }, "CLAIMED TIMELINES (19:30 \u2192 20:30", heistKnown ? ", red band = heist window" : "", "; outlined = map contradiction)"), names.map((n, i) => /* @__PURE__ */ React.createElement(TimelineStrip, { key: i, cs, heistKnown, name: n, color: SUSPECT_INK[i], stmts: log.filter((l) => l.s === i), issues: issuesBySuspect[i] })), /* @__PURE__ */ React.createElement("p", { className: "typed", style: { fontSize: 12, marginTop: 12, opacity: 0.75 } }, "\u2717 = impossible on the map (travel too fast, two places at once, can\u2019t reach ", LOCS[cs.detain].short, " by 20:30). \u26A0 = at the crime scene during the heist window (shown once Evidence #2 reveals it). Clashes with EVIDENCE are for the Detectives to spot.")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h2", { className: "label" }, "Pinned Evidence"), /* @__PURE__ */ React.createElement("div", { className: "deck" }, revealed === 0 && /* @__PURE__ */ React.createElement("div", { className: "facedown", style: { minHeight: 120 } }, "Nothing pinned yet."), cs.evidence.slice(0, revealed).map((e, i) => /* @__PURE__ */ React.createElement(EvidenceCard, { key: e.id, e, rot: [-1.2, 0.8, -0.6, 1, -1, 0.6][i] }))), /* @__PURE__ */ React.createElement("div", { style: { marginTop: 16 } }, /* @__PURE__ */ React.createElement("button", { className: "btn", onClick: () => setAccuse(true), disabled: !deal }, "Final Accusation"))))), tab === "rules" && /* @__PURE__ */ React.createElement("div", { className: "sheet" }, /* @__PURE__ */ React.createElement(Rules, { cs })), /* @__PURE__ */ React.createElement("div", { className: "print-sheet" + (tab === "print" ? " show" : "") }, /* @__PURE__ */ React.createElement(PrintKit, { cs })), accuse && /* @__PURE__ */ React.createElement("div", { className: "scrim", onClick: (e) => {
+    if (e.target === e.currentTarget && verdict === null) setAccuse(false);
+  } }, /* @__PURE__ */ React.createElement("div", { className: "paper modal" }, verdict === null ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: "typed", style: { fontSize: 12 } }, "PRECINCT 9 \xB7 ARREST WARRANT \xB7 CASE ", cs.code), /* @__PURE__ */ React.createElement("h3", { className: "typed", style: { fontSize: 26, margin: "4px 0 10px" } }, "Who did it?"), /* @__PURE__ */ React.createElement("p", { className: "typed" }, "Detectives: agree on one name. This cannot be undone \u2014 the true timelines will be revealed."), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 10, flexWrap: "wrap", margin: "14px 0" } }, names.map((n, i) => /* @__PURE__ */ React.createElement("button", { key: i, className: "btn", onClick: () => {
+    setVerdict(i);
+    setGameOver(true);
+  } }, "Arrest ", n))), /* @__PURE__ */ React.createElement("button", { className: "btn ghost dark", onClick: () => setAccuse(false) }, "Not yet \u2014 keep investigating")) : /* @__PURE__ */ React.createElement(Verdict, { cs, names, deal, verdict, close: () => setAccuse(false), newGame: () => {
+    resetGame();
+    setTab("roles");
+  } }))));
+}
+function InterrogationForm({ names, form, setForm, lock, disabled }) {
+  return /* @__PURE__ */ React.createElement("div", { className: "form", style: { opacity: disabled ? 0.55 : 1 } }, /* @__PURE__ */ React.createElement("label", null, "SUSPECT", /* @__PURE__ */ React.createElement("select", { className: "inp", value: form.s, onChange: (e) => setForm({ ...form, s: +e.target.value }), disabled }, names.map((n, i) => /* @__PURE__ */ React.createElement("option", { key: i, value: i }, n)))), /* @__PURE__ */ React.createElement("label", null, "FROM", /* @__PURE__ */ React.createElement("select", { className: "inp", value: form.from, onChange: (e) => setForm({ ...form, from: e.target.value }), disabled }, TIMES.map((t) => /* @__PURE__ */ React.createElement("option", { key: t }, t)))), /* @__PURE__ */ React.createElement("label", null, "TO", /* @__PURE__ */ React.createElement("select", { className: "inp", value: form.to, onChange: (e) => setForm({ ...form, to: e.target.value }), disabled }, TIMES.map((t) => /* @__PURE__ */ React.createElement("option", { key: t }, t)))), /* @__PURE__ */ React.createElement("label", null, "LOCATION CLAIMED", /* @__PURE__ */ React.createElement("select", { className: "inp", value: form.loc, onChange: (e) => setForm({ ...form, loc: e.target.value }), disabled }, LKEYS.map((k) => /* @__PURE__ */ React.createElement("option", { key: k, value: k }, LOCS[k].name)))), /* @__PURE__ */ React.createElement("label", { style: { gridColumn: "1 / -1" } }, "VERBATIM (optional)", /* @__PURE__ */ React.createElement("input", { className: "inp", value: form.quote, placeholder: "\u201CI was finishing my coffee, I swear.\u201D", onChange: (e) => setForm({ ...form, quote: e.target.value }), disabled })), /* @__PURE__ */ React.createElement("button", { className: "btn", onClick: lock, disabled, style: { gridColumn: "1 / -1" } }, "\u{1F512} Lock statement into Case Record"));
+}
+function RecentLog({ log, names, issues }) {
+  if (!log.length) return null;
+  return /* @__PURE__ */ React.createElement("div", { className: "paper", style: { padding: "10px 14px", marginTop: 14 } }, /* @__PURE__ */ React.createElement("div", { style: { fontFamily: "Oswald", fontSize: 12, letterSpacing: ".1em" } }, "LATEST TESTIMONY"), log.slice(-3).reverse().map((l) => /* @__PURE__ */ React.createElement("div", { key: l.id, className: "typed", style: { fontSize: 13.5, borderBottom: "1px dashed rgba(0,0,0,.25)", padding: "5px 0" } }, "R", l.round, " \xB7 ", /* @__PURE__ */ React.createElement("b", null, names[l.s]), ": ", LOCS[l.loc].name, ", ", range(l.from, l.to), /* @__PURE__ */ React.createElement(Flags, { list: issues[l.id] }))));
+}
+function Verdict({ cs, names, deal, verdict, close, newGame }) {
+  const thiefIdx = deal.indexOf("thief");
+  const win = verdict === thiefIdx;
+  const routes = deal.map((r) => toMin(cs.roles[r].stops));
+  return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "result", style: { color: win ? "#3f6b3a" : "#b3201c" } }, win ? "CASE CLOSED" : "WRONG SUSPECT"), /* @__PURE__ */ React.createElement("p", { className: "typed", style: { fontSize: 17 } }, win ? `${names[verdict]} is cuffed. The Detectives and the Innocents win.` : `${names[verdict]} was innocent. ${names[thiefIdx]} \u2014 the real Thief \u2014 walks free. The Thief wins.`), /* @__PURE__ */ React.createElement("h3", { className: "typed", style: { marginBottom: 4 } }, "The true timelines"), /* @__PURE__ */ React.createElement("div", { style: { overflowX: "auto" } }, /* @__PURE__ */ React.createElement("table", { className: "occ typed" }, /* @__PURE__ */ React.createElement("thead", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("th", null, "Time"), names.map((n, i) => /* @__PURE__ */ React.createElement("th", { key: i }, n, /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("small", null, cs.roles[deal[i]].title))))), /* @__PURE__ */ React.createElement("tbody", null, TICKS.map((m) => /* @__PURE__ */ React.createElement("tr", { key: m, style: { background: m >= cs.heist[0] && m <= cs.heist[1] ? "rgba(179,32,28,.12)" : "" } }, /* @__PURE__ */ React.createElement("td", null, /* @__PURE__ */ React.createElement("b", null, ft(m))), routes.map((r, i) => {
+    const l = occ(r, m);
+    return /* @__PURE__ */ React.createElement("td", { key: i, style: { color: l ? LOCS[l].color : "#999", fontWeight: l ? 700 : 400 } }, l ? LOCS[l].name : "walking");
+  })))))), /* @__PURE__ */ React.createElement("h3", { className: "typed", style: { marginBottom: 4 } }, "How the case cracks"), /* @__PURE__ */ React.createElement("ol", { className: "typed", style: { fontSize: 14, lineHeight: 1.55 } }, cs.solution.map((s, i) => /* @__PURE__ */ React.createElement("li", { key: i }, s))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 10, marginTop: 14 } }, /* @__PURE__ */ React.createElement("button", { className: "btn", onClick: newGame }, "New game (re-deal)"), /* @__PURE__ */ React.createElement("button", { className: "btn ghost dark", onClick: close }, "Close")));
+}
+function TestBlock({ title, tests }) {
+  const ok = tests.every((t) => t[1]);
+  const [open, setOpen] = useState(false);
+  return /* @__PURE__ */ React.createElement("div", { className: "testblock" }, /* @__PURE__ */ React.createElement("div", { className: "tb-head", onClick: () => setOpen(!open) }, /* @__PURE__ */ React.createElement("span", { className: ok ? "pass" : "fail" }, ok ? "\u2713 PASS" : "\u2717 FAIL"), " ", title, " ", /* @__PURE__ */ React.createElement("span", { className: "muted" }, "\xB7 ", tests.filter((t) => t[1]).length, "/", tests.length, " checks ", open ? "\u25BE" : "\u25B8")), open && /* @__PURE__ */ React.createElement("div", { className: "selftest" }, tests.map(([t, o, d], i) => /* @__PURE__ */ React.createElement("div", { key: i, className: o ? "" : "bad" }, o ? "\u2713" : "\u2717", " ", t, d ? ` \u2014 ${d}` : ""))));
+}
+function Rules({ cs }) {
+  const fixedTests = useMemo(() => FIXED.map((c) => [c, selfTestCase(c)]), []);
+  const curTest = useMemo(() => cs.generated ? selfTestCase(cs) : null, [cs]);
+  const stress = useMemo(() => {
+    let ok = 0, n = 300;
+    const sc = {};
+    const t0 = performance.now();
+    for (let s = 1; s <= n; s++) {
+      const c = generateCase(s * 7919);
+      if (c) {
+        ok++;
+        sc[c.scene] = (sc[c.scene] || 0) + 1;
+      }
+    }
+    return { ok, n, sc, ms: Math.round(performance.now() - t0) };
+  }, []);
+  return /* @__PURE__ */ React.createElement("div", { className: "grid2" }, /* @__PURE__ */ React.createElement("div", { className: "paper rules" }, /* @__PURE__ */ React.createElement("section", null, /* @__PURE__ */ React.createElement("h3", null, "THE PITCH"), /* @__PURE__ */ React.createElement("p", null, "A crime happened somewhere in the city between 19:30 and 20:30. Three suspects were detained at the same spot at 20:30. One of them is lying about where they were. Detectives have six rounds to catch the lie on the map.")), /* @__PURE__ */ React.createElement("section", null, /* @__PURE__ */ React.createElement("h3", null, "ROLES (4\u20135 PLAYERS)"), /* @__PURE__ */ React.createElement("ul", null, /* @__PURE__ */ React.createElement("li", null, /* @__PURE__ */ React.createElement("b", null, "1 Thief:"), " knows the true route through the crime scene; invents a cover story that still fits the map."), /* @__PURE__ */ React.createElement("li", null, /* @__PURE__ */ React.createElement("b", null, "2 Innocents:"), " always tell the truth. Their routes look suspicious, but every minute adds up."), /* @__PURE__ */ React.createElement("li", null, /* @__PURE__ */ React.createElement("b", null, "1\u20132 Detectives:"), " read evidence, interrogate, accuse."))), /* @__PURE__ */ React.createElement("section", null, /* @__PURE__ */ React.createElement("h3", null, "SETUP"), /* @__PURE__ */ React.createElement("ol", null, /* @__PURE__ */ React.createElement("li", null, "Choose a case file: #1, #2, #3 \u2014 or ", /* @__PURE__ */ React.createElement("b", null, "Randomize heist"), " for a fresh, self-tested puzzle."), /* @__PURE__ */ React.createElement("li", null, "Name three suspects and deal the secret role cards at random."), /* @__PURE__ */ React.createElement("li", null, "Each suspect reads only their own card."), /* @__PURE__ */ React.createElement("li", null, "Evidence deck face-down in order 1 \u2192 6. The exact heist time is on card #2."))), /* @__PURE__ */ React.createElement("section", null, /* @__PURE__ */ React.createElement("h3", null, "THE MAP LAW"), /* @__PURE__ */ React.createElement("ul", null, /* @__PURE__ */ React.createElement("li", null, "Travel only along red strings; a string takes exactly its minutes."), /* @__PURE__ */ React.createElement("li", null, "You may wait at any location as long as you like."), /* @__PURE__ */ React.createElement("li", null, "All times are multiples of 5, between 19:30 and 20:30."), /* @__PURE__ */ React.createElement("li", null, "Every suspect must reach the detention point by 20:30."))), /* @__PURE__ */ React.createElement("section", null, /* @__PURE__ */ React.createElement("h3", null, "A ROUND (\xD76)"), /* @__PURE__ */ React.createElement("ol", null, /* @__PURE__ */ React.createElement("li", null, /* @__PURE__ */ React.createElement("b", null, "Reveal"), " the next Evidence card."), /* @__PURE__ */ React.createElement("li", null, /* @__PURE__ */ React.createElement("b", null, "Interrogate:"), " Detectives name one suspect and one time."), /* @__PURE__ */ React.createElement("li", null, /* @__PURE__ */ React.createElement("b", null, "Answer:"), " the suspect states a location and time span. Innocents must answer truthfully."), /* @__PURE__ */ React.createElement("li", null, /* @__PURE__ */ React.createElement("b", null, "Log it:"), " testimony is locked into the Case Record forever.")), /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("i", null, "With 2 Detectives: two questions per round, one each."))), /* @__PURE__ */ React.createElement("section", null, /* @__PURE__ */ React.createElement("h3", null, "WINNING"), /* @__PURE__ */ React.createElement("p", null, "Detectives may accuse at any point \u2014 once. Name the Thief: Detectives and Innocents win. Name an Innocent, or fail by the end of Round 6: the Thief wins.")), /* @__PURE__ */ React.createElement("section", null, /* @__PURE__ */ React.createElement("h3", null, "HOW EVIDENCE WORKS"), /* @__PURE__ */ React.createElement("p", null, "Logs give ", /* @__PURE__ */ React.createElement("b", null, "headcounts"), " (\u201Cone customer 19:45\u201319:50\u201D), never faces. A lie is caught when a suspect claims a slot a log says was empty, or leaves a logged sighting nobody truthful can claim."))), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h2", { className: "label" }, "Live consistency self-test"), fixedTests.map(([c, t]) => /* @__PURE__ */ React.createElement(TestBlock, { key: c.id, title: `Case ${c.code} \xB7 ${c.title}`, tests: t })), curTest && /* @__PURE__ */ React.createElement(TestBlock, { title: `Current random case ${cs.code}`, tests: curTest }), /* @__PURE__ */ React.createElement("div", { className: "testblock" }, /* @__PURE__ */ React.createElement("div", { className: "tb-head" }, /* @__PURE__ */ React.createElement("span", { className: stress.ok === stress.n ? "pass" : "fail" }, stress.ok === stress.n ? "\u2713 PASS" : "\u2717"), " Generator stress test ", /* @__PURE__ */ React.createElement("span", { className: "muted" }, "\xB7 ", stress.ok, "/", stress.n, " random seeds produced fully verified cases in ", stress.ms, " ms")), /* @__PURE__ */ React.createElement("div", { className: "selftest" }, "Scenes drawn: ", LKEYS.map((k) => `${LOCS[k].short} ${stress.sc[k] || 0}`).join(" \xB7 "))), /* @__PURE__ */ React.createElement("p", { className: "muted", style: { fontSize: 12.5, lineHeight: 1.5 } }, "Each case checks: every leg is an exact string; all routes start 19:30 and end at the detention point at 20:30; the Thief covers the whole heist window; only the Thief is at the scene at the moment of the crime; every Evidence headcount matches the true routes tick by tick; the heist time is withheld until card #2; the Thief\u2019s suggested cover story is legal on the map yet broken by at least one card; Innocents never trigger a map \u2717. Click a case to expand."), /* @__PURE__ */ React.createElement("h2", { className: "label", style: { marginTop: 18 } }, "Fastest-time chart (minutes)"), /* @__PURE__ */ React.createElement("table", { className: "disttable" }, /* @__PURE__ */ React.createElement("thead", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("th", null), LKEYS.map((k) => /* @__PURE__ */ React.createElement("th", { key: k }, LOCS[k].short)))), /* @__PURE__ */ React.createElement("tbody", null, LKEYS.map((a) => /* @__PURE__ */ React.createElement("tr", { key: a }, /* @__PURE__ */ React.createElement("th", null, LOCS[a].short), LKEYS.map((b) => /* @__PURE__ */ React.createElement("td", { key: b }, a === b ? "\u2014" : DIST[a][b])))))), /* @__PURE__ */ React.createElement("h2", { className: "label", style: { marginTop: 18 } }, "Designer notes (v0.2)"), /* @__PURE__ */ React.createElement("ul", { style: { fontSize: 14, lineHeight: 1.5, color: "#cfd5da" } }, /* @__PURE__ */ React.createElement("li", null, "Case difficulty: #1 medium (tight escape), #2 easy-medium (two Innocents echo the Thief), #3 hard (the cover story is the truth minus 20 minutes)."), /* @__PURE__ */ React.createElement("li", null, "Random cases always log all six locations across the deck, so any lie that drops the scene leaves a headcount gap."), /* @__PURE__ */ React.createElement("li", null, "Track the first round a contradiction appears \u2014 target round 4\u20135."))));
+}
+function CardBack({ role }) {
+  return /* @__PURE__ */ React.createElement("div", { className: "tarot back" }, /* @__PURE__ */ React.createElement("div", { className: "back-in" }, /* @__PURE__ */ React.createElement("div", { className: "back-logo" }, "ALIBI"), /* @__PURE__ */ React.createElement("svg", { viewBox: "0 0 100 100", width: "46%" }, /* @__PURE__ */ React.createElement("g", { fill: "none", stroke: "#1c1712", strokeWidth: "1.4" }, [10, 17, 24, 31, 38, 45].map((r) => /* @__PURE__ */ React.createElement("ellipse", { key: r, cx: "50", cy: "52", rx: r * 0.8, ry: r })))), /* @__PURE__ */ React.createElement("div", { className: "back-sub" }, "SECRET ROLE", /* @__PURE__ */ React.createElement("br", null), "do not show"), /* @__PURE__ */ React.createElement("div", { className: "back-case" }, role)));
+}
+function PrintRole({ cs, role }) {
+  const R = cs.roles[role];
+  const thief = role === "thief";
+  return /* @__PURE__ */ React.createElement("div", { className: "tarot front " + (thief ? "thief" : "inn") }, /* @__PURE__ */ React.createElement("div", { className: "tf-top" }, /* @__PURE__ */ React.createElement("span", null, "CASE ", cs.code), /* @__PURE__ */ React.createElement("span", null, R.tag)), /* @__PURE__ */ React.createElement("div", { className: "tf-title" }, R.title.replace("INNOCENT \xB7 ", "")), !thief && /* @__PURE__ */ React.createElement("div", { className: "tf-kicker" }, "INNOCENT \u2014 tell the truth"), /* @__PURE__ */ React.createElement("div", { className: "tf-h" }, "TRUE ROUTE"), /* @__PURE__ */ React.createElement("table", { className: "tf-route" }, /* @__PURE__ */ React.createElement("tbody", null, R.stops.map((s, i) => /* @__PURE__ */ React.createElement("tr", { key: i }, /* @__PURE__ */ React.createElement("td", null, s[1] === s[2] ? s[1] : `${s[1]}\u2013${s[2]}`), /* @__PURE__ */ React.createElement("td", null, LOCS[s[0]].name, thief && s[0] === cs.scene ? " \u2605" : ""))))), thief ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: "tf-h" }, "COVER STORY"), /* @__PURE__ */ React.createElement("table", { className: "tf-route" }, /* @__PURE__ */ React.createElement("tbody", null, R.bluff.stops.map((s, i) => /* @__PURE__ */ React.createElement("tr", { key: i }, /* @__PURE__ */ React.createElement("td", null, s[1] === s[2] ? s[1] : `${s[1]}\u2013${s[2]}`), /* @__PURE__ */ React.createElement("td", null, LOCS[s[0]].name))))), /* @__PURE__ */ React.createElement("ul", { className: "tf-tips" }, R.bluff.tips.slice(0, 2).map((t, i) => /* @__PURE__ */ React.createElement("li", { key: i }, t)))) : /* @__PURE__ */ React.createElement("p", { className: "tf-why" }, R.why), /* @__PURE__ */ React.createElement("div", { className: "tf-foot" }, "Map law: strings take exact minutes \xB7 wait anywhere \xB7 ", LOCS[cs.detain].short, " by 20:30"));
+}
+function BlankRole() {
+  return /* @__PURE__ */ React.createElement("div", { className: "tarot front blank" }, /* @__PURE__ */ React.createElement("div", { className: "tf-top" }, /* @__PURE__ */ React.createElement("span", null, "CASE ____"), /* @__PURE__ */ React.createElement("span", null, "CUSTOM")), /* @__PURE__ */ React.createElement("div", { className: "tf-title" }, "ROUTE TEMPLATE"), /* @__PURE__ */ React.createElement("div", { className: "tf-kicker" }, "\u2610 Thief \xA0 \u2610 Innocent"), /* @__PURE__ */ React.createElement("table", { className: "tf-grid" }, /* @__PURE__ */ React.createElement("tbody", null, TIMES.map((t) => /* @__PURE__ */ React.createElement("tr", { key: t }, /* @__PURE__ */ React.createElement("td", null, t), /* @__PURE__ */ React.createElement("td", null))))), /* @__PURE__ */ React.createElement("div", { className: "tf-foot" }, "Write a location (B P M C T D) or \u201C\u2192\u201D for walking in each slot."));
+}
+function PrintKit({ cs }) {
+  const backsOrder = ["Thief / Innocent", "Thief / Innocent", "Thief / Innocent", "Thief / Innocent"];
+  return /* @__PURE__ */ React.createElement("div", { className: "kit" }, /* @__PURE__ */ React.createElement("div", { className: "print-banner pp-noprint" }, /* @__PURE__ */ React.createElement("div", { className: "pb-title" }, "\u{1F5A8} PRINT TABLETOP KIT (PDF) \u2014 Case ", cs.code), /* @__PURE__ */ React.createElement("ol", null, /* @__PURE__ */ React.createElement("li", null, "Open this artifact in its ", /* @__PURE__ */ React.createElement("b", null, "own browser tab"), " (full-page view), then press ", /* @__PURE__ */ React.createElement("b", null, "Ctrl + P"), " (Windows) or ", /* @__PURE__ */ React.createElement("b", null, "Cmd + P"), " (Mac). The app\u2019s own buttons can\u2019t trigger printing."), /* @__PURE__ */ React.createElement("li", null, "Destination: your printer or ", /* @__PURE__ */ React.createElement("b", null, "Save as PDF"), ". Paper: ", /* @__PURE__ */ React.createElement("b", null, "A4"), ". Scale: ", /* @__PURE__ */ React.createElement("b", null, "100% / Default"), ". Margins: ", /* @__PURE__ */ React.createElement("b", null, "Default"), "."), /* @__PURE__ */ React.createElement("li", null, "Turn ", /* @__PURE__ */ React.createElement("b", null, "Background graphics ON"), " so the red strings, stamps and shading print."), /* @__PURE__ */ React.createElement("li", null, "You get 5 sheets: Board (landscape) \xB7 Role cards \xB7 Card backs \xB7 Evidence \xB7 Case Record. Print sheet 2 + 3 on card stock (or glue the backs on)."), /* @__PURE__ */ React.createElement("li", null, "Switching the case file at the top (or rolling a random heist) re-generates the whole kit."))), /* @__PURE__ */ React.createElement("section", { className: "a4 land" }, /* @__PURE__ */ React.createElement("div", { className: "pp-head" }, /* @__PURE__ */ React.createElement("span", { className: "pp-logo" }, "ALIBI"), /* @__PURE__ */ React.createElement("span", null, "SHEET 1 \xB7 GAME BOARD \xB7 CASE ", cs.code, ": ", cs.title.replace(/^Random Case R-\d+: /, "").toUpperCase()), /* @__PURE__ */ React.createElement("span", null, "Scene: ", cs.sceneName, " \xB7 Detained: ", LOCS[cs.detain].name, " 20:30")), /* @__PURE__ */ React.createElement("div", { className: "board-frame" }, /* @__PURE__ */ React.createElement(CityMap, { cs, ink: true, matrix: true })), /* @__PURE__ */ React.createElement("div", { className: "pp-foot" }, "MAP LAW \u2014 travel only along red strings \xB7 each string takes exactly its minutes \xB7 waiting is allowed \xB7 all times in 5-minute steps \xB7 window 19:30\u201320:30")), /* @__PURE__ */ React.createElement("section", { className: "a4" }, /* @__PURE__ */ React.createElement("div", { className: "pp-head" }, /* @__PURE__ */ React.createElement("span", { className: "pp-logo" }, "ALIBI"), /* @__PURE__ */ React.createElement("span", null, "SHEET 2 \xB7 SECRET ROLE CARDS \xB7 70 \xD7 120 mm"), /* @__PURE__ */ React.createElement("span", null, "\u2702 cut on the dashed lines")), /* @__PURE__ */ React.createElement("div", { className: "cardgrid" }, /* @__PURE__ */ React.createElement(PrintRole, { cs, role: "thief" }), /* @__PURE__ */ React.createElement(PrintRole, { cs, role: "inn1" }), /* @__PURE__ */ React.createElement(PrintRole, { cs, role: "inn2" }), /* @__PURE__ */ React.createElement(BlankRole, null)), /* @__PURE__ */ React.createElement("p", { className: "pp-note" }, "Deal the three printed roles face-down at random. Use the blank template to design your own routes \u2014 check them against the Board\u2019s fastest-time matrix.")), /* @__PURE__ */ React.createElement("section", { className: "a4" }, /* @__PURE__ */ React.createElement("div", { className: "pp-head" }, /* @__PURE__ */ React.createElement("span", { className: "pp-logo" }, "ALIBI"), /* @__PURE__ */ React.createElement("span", null, "SHEET 2B \xB7 CARD BACKS (identical \u2014 duplex or glue)"), /* @__PURE__ */ React.createElement("span", null, "\u2702")), /* @__PURE__ */ React.createElement("div", { className: "cardgrid" }, backsOrder.map((r, i) => /* @__PURE__ */ React.createElement(CardBack, { key: i, role: `CASE ${cs.code}` }))), /* @__PURE__ */ React.createElement("p", { className: "pp-note" }, "Print on the back of Sheet 2 (duplex, flip on the long edge) or glue back-to-back before cutting. All backs are identical, so alignment is forgiving.")), /* @__PURE__ */ React.createElement("section", { className: "a4" }, /* @__PURE__ */ React.createElement("div", { className: "pp-head" }, /* @__PURE__ */ React.createElement("span", { className: "pp-logo" }, "ALIBI"), /* @__PURE__ */ React.createElement("span", null, "SHEET 3 \xB7 EVIDENCE DECK \xB7 stack 1 \u2192 6 face-down"), /* @__PURE__ */ React.createElement("span", null, "\u2702")), /* @__PURE__ */ React.createElement("div", { className: "evgrid ink" }, cs.evidence.map((e) => /* @__PURE__ */ React.createElement("div", { key: e.id, className: "evcut" }, /* @__PURE__ */ React.createElement(EvidenceCard, { e }))))), /* @__PURE__ */ React.createElement("section", { className: "a4" }, /* @__PURE__ */ React.createElement("div", { className: "pp-head" }, /* @__PURE__ */ React.createElement("span", { className: "pp-logo" }, "ALIBI"), /* @__PURE__ */ React.createElement("span", null, "SHEET 4 \xB7 OFFICIAL CASE RECORD \xB7 PRECINCT 9"), /* @__PURE__ */ React.createElement("span", null, "Case ", cs.code)), /* @__PURE__ */ React.createElement("div", { className: "rec-meta" }, /* @__PURE__ */ React.createElement("div", null, "Detective(s): ______________________"), /* @__PURE__ */ React.createElement("div", null, "Suspect 1: ____________ \xA0 Suspect 2: ____________ \xA0 Suspect 3: ____________"), /* @__PURE__ */ React.createElement("div", null, "Scene: ", /* @__PURE__ */ React.createElement("b", null, cs.sceneName), " \xB7 Detained: ", /* @__PURE__ */ React.createElement("b", null, LOCS[cs.detain].name, ", 20:30"), " \xB7 Heist time (from Evidence #2): ________")), /* @__PURE__ */ React.createElement("table", { className: "pp-rec" }, /* @__PURE__ */ React.createElement("thead", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("th", { style: { width: "6%" } }, "Rnd"), /* @__PURE__ */ React.createElement("th", { style: { width: "14%" } }, "Suspect"), /* @__PURE__ */ React.createElement("th", { style: { width: "10%" } }, "Time asked"), /* @__PURE__ */ React.createElement("th", { style: { width: "17%" } }, "Location claimed"), /* @__PURE__ */ React.createElement("th", { style: { width: "12%" } }, "From \u2013 To"), /* @__PURE__ */ React.createElement("th", null, "Statement (ink only \u2014 permanent)"), /* @__PURE__ */ React.createElement("th", { style: { width: "6%" } }, "\u2717 / \u2713"))), /* @__PURE__ */ React.createElement("tbody", null, [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6].map((r, i) => /* @__PURE__ */ React.createElement("tr", { key: i }, /* @__PURE__ */ React.createElement("td", null, r), /* @__PURE__ */ React.createElement("td", null), /* @__PURE__ */ React.createElement("td", null), /* @__PURE__ */ React.createElement("td", null), /* @__PURE__ */ React.createElement("td", null), /* @__PURE__ */ React.createElement("td", null), /* @__PURE__ */ React.createElement("td", null))))), /* @__PURE__ */ React.createElement("div", { className: "tearline" }, "\u2702 - - - - - - - - - - - - - - - - - - - tear here: DETECTIVE NOTE SHEET - - - - - - - - - - - - - - - - - - - \u2702"), /* @__PURE__ */ React.createElement("table", { className: "tgrid" }, /* @__PURE__ */ React.createElement("thead", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("th", null, "Who"), TIMES.map((t) => /* @__PURE__ */ React.createElement("th", { key: t }, t)))), /* @__PURE__ */ React.createElement("tbody", null, ["Suspect 1", "Suspect 2", "Suspect 3", "Evidence", "Evidence"].map((w, i) => /* @__PURE__ */ React.createElement("tr", { key: i }, /* @__PURE__ */ React.createElement("td", null, w), TIMES.map((t) => /* @__PURE__ */ React.createElement("td", { key: t })))))), /* @__PURE__ */ React.createElement("div", { className: "tg-key" }, "Key: B Bank \xB7 P Park \xB7 M Metro \xB7 C Caf\xE9 \xB7 T Train \xB7 D Docks \xB7 \u2192 walking \xB7 shade the heist window once Evidence #2 is revealed."), /* @__PURE__ */ React.createElement("div", { className: "notesbox" }, /* @__PURE__ */ React.createElement("div", { className: "nb-h" }, "DETECTIVE NOTES"), [...Array(5)].map((_, i) => /* @__PURE__ */ React.createElement("div", { key: i, className: "nb-line" })))));
+}
+ReactDOM.createRoot(document.getElementById("root")).render(/* @__PURE__ */ React.createElement(App, null));
+
+</script>
+</body>
+</html>
